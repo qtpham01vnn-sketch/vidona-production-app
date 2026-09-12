@@ -253,15 +253,26 @@ export const QuanLyTaiKhoanPage: React.FC = () => {
         <>
           {/* Filter Toolbar */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
-            <div className="sm:col-span-2 relative">
-              <Search size={16} className="absolute left-3.5 top-3 text-slate-400" />
+            <div className="sm:col-span-2 relative flex items-center">
+              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" />
               <input
-                type="text"
+                type="search"
+                name="search_nhansu_keyword"
+                autoComplete="new-password"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Tìm theo Mã NV, Họ tên, SĐT, Email, Chức danh, Phòng ban..."
-                className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs font-medium text-slate-900 dark:text-white"
+                className="w-full pl-10 pr-8 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
               />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                >
+                  <X size={14} />
+                </button>
+              )}
             </div>
 
             <div>
