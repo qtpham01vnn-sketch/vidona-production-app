@@ -1,0 +1,350 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  FileText, Plus, Filter, Search, Printer, Edit, Trash2, 
+  CheckCircle2, XCircle, AlertTriangle, Download, RefreshCw, Layers
+} from 'lucide-react';
+import { BM0307Record } from '../types';
+import { getBM0307Records, saveBM0307Record } from '../services/storageService';
+import { DynamicBM0307 } from '../components/bm0307/DynamicBM0307';
+import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
+
+export const NhapKhoBM0307Page: React.FC = () => {
+  const { user } = useAuth();
+  const { theme } = useTheme();
+
+  const [records, setRecords] = useState<BM0307Record[]>([]);
+  const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'rejected' | 'completed'>('all');
+  
+  // Filter States
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  const [supplierSearch, setSupplierSearch] = useState('');
+  const [materialSearch, setMaterialSearch] = useState('');
+  const [kcsStatusFilter, setKcsStatusFilter] = useState<'all' | 'DAT' | 'KHONG_DAT'>('all');
+
+  // Modal State
+  const [showModal, setShowModal] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<BM0307Record | undefined>(undefined);
+
+  const loadData = () => {
+    const list = getBM0307Records();
+    setRecords(list);
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleCreateNew = () => {
+    setEditingRecord(undefined);
+    setShowModal(true);
+  };
+
+  const handleEdit = (rec: BM0307Record) => {
+    setEditingRecord(rec);
+    setShowModal(true);
+  };
+
+  const handleSave = (savedRec: BM0307Record) => {
+    saveBM0307Record(savedRec);
+    loadData();
+    setShowModal(false);
+  };
+
+  // Filter records
+  const filteredRecords = useMemo(() => {
+    return records.filter(r => {
+      // Tab filter
+      const isApproved5 = r.chu_ky?.lanh_dao_duyet?.da_ky;
+      const isRejected = r.ket_luan === 'KHONG_DAT';
+      
+      if (activeTab === 'completed' && !isApproved5) return false;
+      if (activeTab === 'pending' && (isApproved5 || isRejected)) return false;
+      if (activeTab === 'rejected' && !isRejected) return false;
+
+      // Supplier
+      if (supplierSearch && !r.nha_cung_cap.toLowerCase().includes(supplierSearch.toLowerCase())) {
+        return false;
+      }
+
+      // Material
+      if (materialSearch && !r.ten_hang_hoa.toLowerCase().includes(materialSearch.toLowerCase())) {
+        return false;
+      }
+
+      // KCS status
+      if (kcsStatusFilter !== 'all' && r.ket_luan !== kcsStatusFilter) {
+        return false;
+      }
+
+      // Date range
+      if (fromDate && r.ngay_kiem_tra < fromDate) return false;
+      if (toDate && r.ngay_kiem_tra > toDate) return false;
+
+      return true;
+    });
+  }, [records, activeTab, supplierSearch, materialSearch, kcsStatusFilter, fromDate, toDate]);
+
+  return (
+    <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
+      
+      {/* Title & Action */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <div className="p-2.5 rounded-xl bg-sky-500/20 text-sky-600 dark:text-sky-400">
+              <FileText size={24} />
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gradient">
+                Phiếu Kiểm Tra Chất Lượng & Nhập Kho (BM.03.07)
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                Số hóa toàn diện mẫu BM.03.07 theo 41 bảng TCCS TC.09.01 và quy trình duyệt 5 cấp ký điện tử
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={handleCreateNew}
+          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-sky-500/25 transition-all"
+        >
+          <Plus size={18} /> + Lập Phiếu BM.03.07 Mới
+        </button>
+      </div>
+
+      {/* FILTER BOX */}
+      <div className="glass-panel p-4 sm:p-5 rounded-2xl space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+          
+          <div>
+            <label className="block text-slate-600 dark:text-slate-400 font-bold mb-1">📅 Từ Ngày</label>
+            <input 
+              type="date" 
+              value={fromDate} 
+              onChange={(e) => setFromDate(e.target.value)} 
+              className="w-full font-medium"
+            />
+          </div>
+
+          <div>
+            <label className="block text-slate-600 dark:text-slate-400 font-bold mb-1">📅 Đến Ngày</label>
+            <input 
+              type="date" 
+              value={toDate} 
+              onChange={(e) => setToDate(e.target.value)} 
+              className="w-full font-medium"
+            />
+          </div>
+
+          <div>
+            <label className="block text-slate-600 dark:text-slate-400 font-bold mb-1">🏢 Nhà Cung Cấp</label>
+            <input 
+              type="text" 
+              value={supplierSearch} 
+              onChange={(e) => setSupplierSearch(e.target.value)} 
+              placeholder="VD: DNTN Gỗ, Duy Thanh Lương..."
+              className="w-full font-medium"
+            />
+          </div>
+
+          <div>
+            <label className="block text-slate-600 dark:text-slate-400 font-bold mb-1">📦 Nguyên Vật Liệu</label>
+            <input 
+              type="text" 
+              value={materialSearch} 
+              onChange={(e) => setMaterialSearch(e.target.value)} 
+              placeholder="VD: Pallet, Đất sét, 300x600..."
+              className="w-full font-medium"
+            />
+          </div>
+
+          <div>
+            <label className="block text-slate-600 dark:text-slate-400 font-bold mb-1">⚖️ Đánh Giá KCS</label>
+            <select 
+              value={kcsStatusFilter} 
+              onChange={(e) => setKcsStatusFilter(e.target.value as any)}
+              className="w-full font-medium"
+            >
+              <option value="all">-- Tất Cả Kết Quả --</option>
+              <option value="DAT">🟢 Đạt Tiêu Chuẩn</option>
+              <option value="KHONG_DAT">🔴 Không Đạt / Hạ Cấp</option>
+            </select>
+          </div>
+
+        </div>
+
+        {/* Tab lọc trạng thái */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-inherit text-xs">
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setActiveTab('all')}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+                activeTab === 'all' 
+                  ? 'bg-sky-600 text-white shadow-sm' 
+                  : 'bg-slate-200 dark:bg-slate-800/40 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+            >
+              Tất Cả ({records.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('pending')}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+                activeTab === 'pending' 
+                  ? 'bg-amber-500 text-slate-950 font-black shadow-sm' 
+                  : 'bg-slate-200 dark:bg-slate-800/40 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+            >
+              ⏳ Chờ Phê Duyệt ({records.filter(r => !r.chu_ky?.lanh_dao_duyet?.da_ky && r.ket_luan !== 'KHONG_DAT').length})
+            </button>
+            <button
+              onClick={() => setActiveTab('rejected')}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+                activeTab === 'rejected' 
+                  ? 'bg-rose-600 text-white shadow-sm' 
+                  : 'bg-slate-200 dark:bg-slate-800/40 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+            >
+              ❌ Bị Trả Về / Lỗi ({records.filter(r => r.ket_luan === 'KHONG_DAT').length})
+            </button>
+            <button
+              onClick={() => setActiveTab('completed')}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+                activeTab === 'completed' 
+                  ? 'bg-emerald-600 text-white shadow-sm' 
+                  : 'bg-slate-200 dark:bg-slate-800/40 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+            >
+              ✓ Đã Duyệt Hoàn Tất ({records.filter(r => r.chu_ky?.lanh_dao_duyet?.da_ky).length})
+            </button>
+          </div>
+
+          <button
+            onClick={loadData}
+            className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 flex items-center gap-1 font-semibold"
+            title="Tải lại dữ liệu"
+          >
+            <RefreshCw size={14} /> Làm mới
+          </button>
+        </div>
+      </div>
+
+      {/* DANH SÁCH BẢNG PHIẾU BM.03.07 */}
+      <div className="glass-panel rounded-2xl overflow-hidden">
+        <div className="p-4 border-b border-inherit flex items-center justify-between">
+          <div className="text-sm font-bold text-slate-900 dark:text-slate-200 flex items-center gap-2">
+            <Layers size={16} className="text-sky-600 dark:text-sky-400" />
+            <span>Danh Sách Phiếu Nhập Kho & KCS ({filteredRecords.length} Phiếu)</span>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="table-custom text-xs">
+            <thead>
+              <tr>
+                <th className="w-24 text-center">Số Phiếu</th>
+                <th className="w-28">Ngày Nhập</th>
+                <th>Nhà Cung Cấp</th>
+                <th>Tên Hàng Hóa</th>
+                <th className="text-right">Khối Lượng</th>
+                <th className="text-center w-28">Đánh Giá KCS</th>
+                <th className="text-center w-36">Tiến Độ Duyệt</th>
+                <th className="text-center w-28">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredRecords.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="text-center py-8 text-slate-500 italic">
+                    Không tìm thấy phiếu BM.03.07 nào phù hợp bộ lọc
+                  </td>
+                </tr>
+              ) : (
+                filteredRecords.map((r) => {
+                  const isApproved5 = r.chu_ky?.lanh_dao_duyet?.da_ky;
+                  return (
+                    <tr key={r.id} className="hover:bg-slate-500/5 transition-colors">
+                      <td className="text-center font-bold text-sky-600 dark:text-sky-400">
+                        <button 
+                          onClick={() => handleEdit(r)}
+                          className="hover:underline font-mono text-sm"
+                        >
+                          {r.so_phieu}
+                        </button>
+                      </td>
+                      <td className="text-slate-700 dark:text-slate-300 font-medium">
+                        {new Date(r.ngay_kiem_tra).toLocaleDateString('vi-VN')}
+                      </td>
+                      <td className="font-semibold text-slate-900 dark:text-slate-200">
+                        {r.nha_cung_cap}
+                      </td>
+                      <td>
+                        <div className="font-bold text-slate-900 dark:text-slate-100">{r.ten_hang_hoa}</div>
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">TCCS: {r.ma_tccs}</div>
+                      </td>
+                      <td className="text-right font-bold text-emerald-600 dark:text-emerald-400 text-sm">
+                        {r.so_luong_nhap.toLocaleString()} <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">{r.don_vi_tinh}</span>
+                      </td>
+                      <td className="text-center">
+                        {r.ket_luan === 'DAT' ? (
+                          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                            🟢 Đạt
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                            🔴 K.Đạt
+                          </span>
+                        )}
+                      </td>
+                      <td className="text-center">
+                        {isApproved5 ? (
+                          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                            ✓ ĐÃ DUYỆT 5/5
+                          </span>
+                        ) : (
+                          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                            ⏳ ĐANG DUYỆT
+                          </span>
+                        )}
+                      </td>
+                      <td className="text-center">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            onClick={() => handleEdit(r)}
+                            className="p-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-600 dark:text-sky-400"
+                            title="Xem / In / Ký duyệt"
+                          >
+                            <Printer size={15} />
+                          </button>
+                          <button
+                            onClick={() => handleEdit(r)}
+                            className="p-1.5 rounded-lg bg-slate-200 dark:bg-slate-700/50 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300"
+                            title="Chỉnh sửa phiếu"
+                          >
+                            <Edit size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* MODAL BIỂU MẪU ĐỘNG BM.03.07 CHUẨN A4 */}
+      {showModal && (
+        <DynamicBM0307
+          initialData={editingRecord}
+          onSave={handleSave}
+          onClose={() => setShowModal(false)}
+        />
+      )}
+
+    </div>
+  );
+};

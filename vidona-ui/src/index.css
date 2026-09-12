@@ -1,0 +1,289 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --color-bg-base: #f8fafc;
+  --color-bg-gradient: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+  --color-bg-panel: rgba(255, 255, 255, 0.95);
+  --color-bg-panel-solid: #ffffff;
+  --color-bg-card: #ffffff;
+  --color-bg-input: #ffffff;
+  --color-text-main: #0f172a;
+  --color-text-muted: #475569;
+  --color-border: #cbd5e1;
+  --color-primary: #0284c7;
+  --color-primary-hover: #0369a1;
+  --color-primary-light: rgba(2, 132, 199, 0.12);
+  --color-accent: #2563eb;
+  --color-success: #15803d;
+  --color-warning: #b45309;
+  --color-danger: #b91c1c;
+}
+
+.dark {
+  color-scheme: dark;
+  --color-bg-base: #0b1329;
+  --color-bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0b1329 100%);
+  --color-bg-panel: rgba(15, 23, 42, 0.85);
+  --color-bg-panel-solid: #0f172a;
+  --color-bg-card: rgba(30, 41, 59, 0.75);
+  --color-bg-input: rgba(15, 23, 42, 0.95);
+  --color-text-main: #f8fafc;
+  --color-text-muted: #94a3b8;
+  --color-border: rgba(255, 255, 255, 0.12);
+  --color-primary: #38bdf8;
+  --color-primary-hover: #0284c7;
+  --color-primary-light: rgba(56, 189, 248, 0.15);
+  --color-accent: #60a5fa;
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--color-bg-gradient);
+  background-attachment: fixed;
+  color: var(--color-text-main);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glassmorphism Panel */
+.glass-panel {
+  background: var(--color-bg-panel);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.08);
+}
+.dark .glass-panel {
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Text Gradient */
+.text-gradient {
+  background: linear-gradient(135deg, #0284c7, #1e40af);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.dark .text-gradient {
+  background: linear-gradient(135deg, #ffffff, #38bdf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Form Inputs */
+.form-input, .form-select, input[type="text"], input[type="number"], input[type="date"], textarea, select {
+  background: var(--color-bg-input);
+  color: var(--color-text-main);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.light input, .light textarea, .light select {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  font-weight: 500;
+}
+.light input:focus, .light textarea:focus, .light select:focus {
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2) !important;
+}
+
+.dark input, .dark textarea, .dark select {
+  background: rgba(15, 23, 42, 0.95) !important;
+  color: #f8fafc !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+.dark input:focus, .dark textarea:focus, .dark select:focus {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25) !important;
+}
+
+/* Layout */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar-desktop {
+  width: 272px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  overflow-y: auto;
+}
+
+.light .sidebar-desktop {
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
+}
+.dark .sidebar-desktop {
+  background: rgba(11, 19, 41, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+/* Custom Table */
+.table-custom {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table-custom th, .table-custom td {
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--color-border);
+}
+.light .table-custom th {
+  background: #f1f5f9;
+  color: #1e293b;
+  font-weight: 700;
+  border-color: #cbd5e1;
+}
+.light .table-custom td {
+  color: #0f172a;
+  border-color: #e2e8f0;
+}
+.dark .table-custom th {
+  background: rgba(30, 41, 59, 0.9);
+  color: #94a3b8;
+  font-weight: 700;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.dark .table-custom td {
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PRINT A4 PERFECT ISOLATION (CHỈ IN DUY NHẤT 1 TRANG FORM A4)
+   ═══════════════════════════════════════════════════════════ */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 5mm 6mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 8.5pt !important;
+    line-height: 1.15 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* ẨN TOÀN BỘ TRANG WEB */
+  body * {
+    visibility: hidden !important;
+  }
+
+  /* CHỈ HIỆN DUY NHẤT TỜ FORM IN BM.03.07 */
+  #print-bm0307-a4, #print-bm0307-a4 * {
+    visibility: visible !important;
+  }
+
+  #print-bm0307-a4 {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 2mm 4mm !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: none !important;
+    box-shadow: none !important;
+    z-index: 9999999 !important;
+    box-sizing: border-box !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  #print-bm0307-a4 table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 8pt !important;
+    margin: 2px 0 !important;
+  }
+
+  #print-bm0307-a4 th, #print-bm0307-a4 td {
+    border: 1px solid #000000 !important;
+    padding: 2px 3px !important;
+    color: #000000 !important;
+    background: transparent !important;
+  }
+
+  #print-bm0307-a4 input, #print-bm0307-a4 select, #print-bm0307-a4 textarea {
+    border: none !important;
+    background: transparent !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    font-size: 8pt !important;
+    box-shadow: none !important;
+  }
+
+  #print-bm0307-a4 .no-print {
+    display: none !important;
+  }
+
+  #print-bm0307-a4 .print-stamp {
+    border: 1.5px solid #059669 !important;
+    color: #059669 !important;
+    padding: 1px 4px !important;
+    font-weight: bold !important;
+    font-size: 7.5pt !important;
+    border-radius: 2px !important;
+    display: inline-block !important;
+  }
+
+  /* TỰ ĐỘNG CO GIÃN HÀNG HỌC THEO SỐ LƯỢNG CHỈ TIÊU ĐỂ KHÔNG THỪA TRÊN THIẾU DƯỚI */
+  #print-bm0307-a4.print-spacious th, 
+  #print-bm0307-a4.print-spacious td {
+    padding: 4.5px 5px !important;
+    line-height: 1.4 !important;
+    font-size: 8.5pt !important;
+  }
+
+  #print-bm0307-a4.print-standard th, 
+  #print-bm0307-a4.print-standard td {
+    padding: 2.5px 3.5px !important;
+    line-height: 1.25 !important;
+    font-size: 8pt !important;
+  }
+
+  #print-bm0307-a4.print-compact th, 
+  #print-bm0307-a4.print-compact td {
+    padding: 1.5px 2px !important;
+    line-height: 1.15 !important;
+    font-size: 7.5pt !important;
+  }
+}
+
