@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 import { useAuth, PRESET_USERS } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { Lock, UserCheck, Shield, KeyRound, Building2 } from 'lucide-react';
+import { Lock, UserCheck, Shield, KeyRound, Building2, CheckCircle2 } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const { loginByPin } = useAuth();
-  const navigate = useNavigate();
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
 
   const handleLogin = (pinCode: string) => {
     if (loginByPin(pinCode)) {
-      navigate('/');
+      setError('');
     } else {
       setError('Mã PIN không chính xác. Vui lòng thử lại!');
     }
