@@ -1,13 +1,32 @@
 export type ThemeMode = 'light' | 'dark';
 
 export interface User {
-  id: number;
+  id: number | string;
   username: string;
+  ma_nv?: string;
   full_name: string;
   chuc_danh: string;
+  phong_ban?: string;
   role: 'ADMIN' | 'MANAGEMENT' | 'KCS' | 'KHO' | 'WORKER';
   pin_code: string;
+  password?: string;
   phone?: string;
+  email?: string;
+  is_active?: boolean;
+}
+
+export interface ActivationRequest {
+  id: string;
+  full_name: string;
+  ma_nv?: string;
+  email: string;
+  so_dien_thoai: string;
+  phong_ban: string;
+  chuc_vu?: string;
+  ly_do?: string;
+  trang_thai: 'CHO_DUYET' | 'DA_DUYET' | 'TU_CHOI';
+  ngay_gui: string;
+  pin_cap?: string;
 }
 
 export interface TCCSChiTieu {

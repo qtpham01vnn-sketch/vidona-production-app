@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, Target, Beaker, FileText, Package, 
-  BookOpen, ChevronDown, ChevronRight, UserCheck, 
+  BookOpen, ChevronDown, ChevronRight, UserCheck, Users,
   LogOut, Sun, Moon, Bot, LineChart, Smartphone, Download, X, HelpCircle
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -285,6 +285,34 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onSelectPage, isM
                   }`}
                 >
                   Trợ Lý AI TC.09 (Hỏi Đáp & Soát Lỗi)
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Module 5: QUẢN LÝ NHÂN SỰ & TÀI KHOẢN (ADMIN / BAN QUẢN LÝ) */}
+          <div className="rounded-lg overflow-hidden">
+            <button 
+              onClick={() => toggle('nhansu')}
+              className="w-full flex items-center justify-between p-2 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Users size={15} className="text-indigo-600 dark:text-indigo-400" /> 👥 QUẢN TRỊ & NHÂN SỰ
+              </span>
+              {expanded.nhansu ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+            </button>
+            {expanded.nhansu && (
+              <div className="mt-1 ml-3 pl-2 border-l border-indigo-500/20 space-y-1">
+                <button
+                  onClick={() => handleNav('tai-khoan')}
+                  className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center justify-between ${
+                    currentPage === 'tai-khoan' 
+                      ? 'bg-sky-500/20 text-sky-700 dark:text-sky-400 font-bold border-l-2 border-sky-500' 
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
+                  }`}
+                >
+                  <span>Quản Lý Tài Khoản & Cấp PIN</span>
+                  <span className="text-[10px] px-1 py-0.2 rounded bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 font-bold">Excel</span>
                 </button>
               </div>
             )}

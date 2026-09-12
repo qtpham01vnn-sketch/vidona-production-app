@@ -10,7 +10,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 
 export const NhapKhoBM0307Page: React.FC = () => {
-  const { user } = useAuth();
+  const { user, canCreateBM0307, isWorker } = useAuth();
   const { theme } = useTheme();
 
   const [records, setRecords] = useState<BM0307Record[]>([]);
@@ -115,12 +115,14 @@ export const NhapKhoBM0307Page: React.FC = () => {
           </div>
         </div>
 
-        <button
-          onClick={handleCreateNew}
-          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-sky-500/25 transition-all"
-        >
-          <Plus size={18} /> + Lập Phiếu BM.03.07 Mới
-        </button>
+        {canCreateBM0307 && (
+          <button
+            onClick={handleCreateNew}
+            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-sky-500/25 transition-all"
+          >
+            <Plus size={18} /> + Lập Phiếu BM.03.07 Mới
+          </button>
+        )}
       </div>
 
       {/* FILTER BOX */}

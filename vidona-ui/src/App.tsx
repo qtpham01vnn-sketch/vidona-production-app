@@ -10,6 +10,7 @@ import { TraCuuTCCSPage } from './pages/TraCuuTCCSPage';
 import { KhoNVLPage } from './pages/KhoNVLPage';
 import { SanLuongPage } from './pages/SanLuongPage';
 import { TroLyAIPage } from './pages/TroLyAIPage';
+import { QuanLyTaiKhoanPage } from './pages/QuanLyTaiKhoanPage';
 
 const MainApp: React.FC = () => {
   const { user } = useAuth();
@@ -32,6 +33,8 @@ const MainApp: React.FC = () => {
         return <KhoNVLPage />;
       case 'san-luong':
         return <SanLuongPage />;
+      case 'tai-khoan':
+        return <QuanLyTaiKhoanPage />;
       case 'ai':
         return <TroLyAIPage />;
       default:
