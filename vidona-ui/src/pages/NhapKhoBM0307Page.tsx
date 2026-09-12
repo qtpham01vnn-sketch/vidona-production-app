@@ -4,7 +4,7 @@ import {
   CheckCircle2, XCircle, AlertTriangle, Download, RefreshCw, Layers
 } from 'lucide-react';
 import { BM0307Record } from '../types';
-import { getBM0307Records, saveBM0307Record } from '../services/storageService';
+import { getBM0307Records, saveBM0307Record, fetchBM0307FromSupabase } from '../services/storageService';
 import { DynamicBM0307 } from '../components/bm0307/DynamicBM0307';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -27,9 +27,17 @@ export const NhapKhoBM0307Page: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingRecord, setEditingRecord] = useState<BM0307Record | undefined>(undefined);
 
-  const loadData = () => {
+  const loadData = async () => {
     const list = getBM0307Records();
     setRecords(list);
+    try {
+      const cloudList = await fetchBM0307FromSupabase();
+      if (cloudList && cloudList.length > 0) {
+        setRecords(cloudList);
+      }
+    } catch (e) {
+      console.warn('Could not sync from cloud:', e);
+    }
   };
 
   useEffect(() => {

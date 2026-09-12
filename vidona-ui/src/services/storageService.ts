@@ -1,5 +1,6 @@
-import { BM0307Record, KhoNVLItem, SanLuongItem } from '../types';
+import { BM0307Record, KhoNVLItem, SanLuongItem, TCCSBang } from '../types';
 import { DANH_MUC_TCCS_41 } from './tccsData';
+import { supabase } from './supabaseClient';
 
 export const DEFAULT_BM0307_RECORDS: BM0307Record[] = [
   {
@@ -93,12 +94,43 @@ export const DEFAULT_SAN_LUONG: SanLuongItem[] = [
   { ngay: '2026-09-11', ca: 'CA_1', san_luong_m2: 4180, ty_le_loai_1: 93.8, ty_le_loai_2: 4.2, ty_le_ha_loai: 1.4, ty_le_phe_pham: 0.6, top_loi: [{ ten_loi: 'Lệch màu men', ty_le_pt: 0.9 }, { ten_loi: 'Nứt cạnh', ty_le_pt: 0.5 }] }
 ];
 
+// Lấy danh sách BM0307 (Local first + Async Supabase Sync)
 export const getBM0307Records = (): BM0307Record[] => {
   const data = localStorage.getItem('vidona_bm0307');
   if (data) {
     try { return JSON.parse(data); } catch { return DEFAULT_BM0307_RECORDS; }
   }
   return DEFAULT_BM0307_RECORDS;
+};
+
+// Đồng bộ từ Supabase về LocalStorage
+export const fetchBM0307FromSupabase = async (): Promise<BM0307Record[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('vidona_bm0307')
+      .select('*')
+      .order('ngay_tao', { ascending: false });
+
+    if (error) {
+      console.warn('Supabase fetch BM0307 error (using local):', error.message);
+      return getBM0307Records();
+    }
+
+    if (data && data.length > 0) {
+      localStorage.setItem('vidona_bm0307', JSON.stringify(data));
+      return data as BM0307Record[];
+    } else {
+      // Nếu Supabase rỗng, nạp dữ liệu mẫu lên
+      const initial = getBM0307Records();
+      for (const rec of initial) {
+        await supabase.from('vidona_bm0307').upsert(rec);
+      }
+      return initial;
+    }
+  } catch (err) {
+    console.warn('Network error, fallback to local BM0307:', err);
+    return getBM0307Records();
+  }
 };
 
 export const getKhoNVL = (): KhoNVLItem[] => {
@@ -109,21 +141,26 @@ export const getKhoNVL = (): KhoNVLItem[] => {
   return DEFAULT_KHO_NVL;
 };
 
-export const saveKhoNVL = (items: KhoNVLItem[]) => {
+export const saveKhoNVL = async (items: KhoNVLItem[]) => {
   localStorage.setItem('vidona_kho_nvl', JSON.stringify(items));
+  try {
+    for (const item of items) {
+      await supabase.from('vidona_kho_nvl').upsert(item);
+    }
+  } catch (e) {
+    console.warn('Could not sync KhoNVL to Supabase:', e);
+  }
 };
 
 export const updateKhoFromBM0307 = (record: BM0307Record) => {
   if (record.ket_luan === 'KHONG_DAT') return;
   const khoList = getKhoNVL();
   
-  // Tìm NVL phù hợp theo tên hoặc mã TCCS
   let item = khoList.find(k => 
     record.ten_hang_hoa.toLowerCase().includes(k.ten_nvl.toLowerCase()) || 
     k.ten_nvl.toLowerCase().includes(record.ten_hang_hoa.toLowerCase())
   );
 
-  // Trích xuất các chỉ số thực tế
   const doAmCt = record.ket_qua_chi_tieu.find(c => c.ten_chi_tieu.toLowerCase().includes('độ ẩm') || c.chi_tieu_id === 'do_am');
   const doCoCt = record.ket_qua_chi_tieu.find(c => c.ten_chi_tieu.toLowerCase().includes('độ co') || c.chi_tieu_id === 'do_co');
   const mknCt = record.ket_qua_chi_tieu.find(c => c.ten_chi_tieu.toLowerCase().includes('mkn') || c.ten_chi_tieu.toLowerCase().includes('mất sau nung') || c.chi_tieu_id === 'mkn');
@@ -142,11 +179,9 @@ export const updateKhoFromBM0307 = (record: BM0307Record) => {
       mkn: isNaN(mknVal as any) ? undefined : mknVal,
       nha_cung_cap: record.nha_cung_cap
     };
-  } else {
-    // Thêm mới NVL vào kho nếu chưa có
     khoList.push({
-      id: `nvl-${Date.now()}`,
-      ma_nvl: record.ma_tccs || `VT_${Date.now().toString().slice(-4)}`,
+      id: 'nvl-' + Date.now(),
+      ma_nvl: record.ma_tccs || ('VT_' + Date.now().toString().slice(-4)),
       ten_nvl: record.ten_hang_hoa,
       nhom: 'XUONG',
       don_vi_tinh: record.don_vi_tinh,
@@ -167,7 +202,7 @@ export const updateKhoFromBM0307 = (record: BM0307Record) => {
   saveKhoNVL(khoList);
 };
 
-export const saveBM0307Record = (record: BM0307Record) => {
+export const saveBM0307Record = async (record: BM0307Record) => {
   const list = getBM0307Records();
   const idx = list.findIndex(r => r.id === record.id);
   if (idx >= 0) {
@@ -177,7 +212,13 @@ export const saveBM0307Record = (record: BM0307Record) => {
   }
   localStorage.setItem('vidona_bm0307', JSON.stringify(list));
 
-  // Tự động cập nhật liên thông sang Tồn kho NVL nếu đã được duyệt
+  // Tự động đẩy lên Supabase Cloud
+  try {
+    await supabase.from('vidona_bm0307').upsert(record);
+  } catch (e) {
+    console.warn('Could not sync record to Supabase:', e);
+  }
+
   if (record.trang_thai_duyet === 'DA_DUYET_5_CAP' || record.chu_ky.lanh_dao_duyet?.da_ky) {
     updateKhoFromBM0307(record);
   }
@@ -193,3 +234,25 @@ export const getSanLuong = (): SanLuongItem[] => {
   return DEFAULT_SAN_LUONG;
 };
 
+// Đồng bộ Bộ TCCS lên Supabase Cloud
+export const syncTCCSToSupabase = async (tccsList: TCCSBang[]) => {
+  try {
+    for (const b of tccsList) {
+      await supabase.from('vidona_tccs').upsert(b);
+    }
+  } catch (e) {
+    console.warn('Could not sync TCCS to Supabase:', e);
+  }
+};
+
+export const fetchTCCSFromSupabase = async (): Promise<TCCSBang[] | null> => {
+  try {
+    const { data, error } = await supabase.from('vidona_tccs').select('*');
+    if (!error && data && data.length > 0) {
+      return data as TCCSBang[];
+    }
+  } catch (e) {
+    console.warn('Error fetching TCCS from Supabase:', e);
+  }
+  return null;
+};
