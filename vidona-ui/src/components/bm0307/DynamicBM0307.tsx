@@ -627,7 +627,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                           <input 
                             type="radio" 
                             name="loaiHangHoa" 
-                            disabled={isLockedFinal}
+                            disabled={isLockedStep1 || isLockedFinal}
                             checked={loaiHangHoa === 'NHAP_KHO'} 
                             onChange={() => setLoaiHangHoa('NHAP_KHO')} 
                           />
@@ -637,7 +637,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                           <input 
                             type="radio" 
                             name="loaiHangHoa" 
-                            disabled={isLockedFinal}
+                            disabled={isLockedStep1 || isLockedFinal}
                             checked={loaiHangHoa === 'MAU_THU'} 
                             onChange={() => setLoaiHangHoa('MAU_THU')} 
                           />
@@ -647,7 +647,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                           <input 
                             type="radio" 
                             name="loaiHangHoa" 
-                            disabled={isLockedFinal}
+                            disabled={isLockedStep1 || isLockedFinal}
                             checked={loaiHangHoa === 'LOAI_KHAC'} 
                             onChange={() => setLoaiHangHoa('LOAI_KHAC')} 
                           />
@@ -662,7 +662,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                       <input 
                         type="text" 
                         value={nhaCungCap} 
-                        disabled={isLockedFinal}
+                        disabled={isLockedStep1 || isLockedFinal}
                         onChange={(e) => setNhaCungCap(e.target.value)} 
                         className="w-full font-bold disabled:bg-transparent"
                         placeholder="Nhập tên nhà cung cấp..."
@@ -675,7 +675,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                       <input 
                         type="text" 
                         value={soHopDong} 
-                        disabled={isLockedFinal}
+                        disabled={isLockedStep1 || isLockedFinal}
                         onChange={(e) => setSoHopDong(e.target.value)} 
                         className="w-full font-medium disabled:bg-transparent"
                         placeholder="Số HĐ / Đơn đặt hàng..."
@@ -691,7 +691,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                           <input 
                             type="date" 
                             value={ngayNhap} 
-                            disabled={isLockedFinal}
+                            disabled={isLockedStep1 || isLockedFinal}
                             onChange={(e) => setNgayNhap(e.target.value)} 
                             className="font-medium disabled:bg-transparent"
                           />
@@ -701,7 +701,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                           <input 
                             type="text" 
                             value={soXe} 
-                            disabled={isLockedFinal}
+                            disabled={isLockedStep1 || isLockedFinal}
                             onChange={(e) => setSoXe(e.target.value)} 
                             className="font-medium disabled:bg-transparent"
                             placeholder="Biển số xe..."
@@ -1010,7 +1010,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
               }`}>
                 <div className="font-bold text-slate-800 dark:text-slate-200 leading-tight">
                   Phê duyệt<br/>
-                  <span className="text-[8.5px] font-normal text-slate-500 dark:text-slate-400">(Cấp 5: Ban Giám Đốc)</span>
+                  <span className="text-[8.5px] font-normal text-slate-500 dark:text-slate-400">(Cấp 5: Sếp Phê Duyệt / BGĐ)</span>
                 </div>
                 
                 {chuKy.lanh_dao_duyet?.da_ky ? (
@@ -1049,7 +1049,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
               }`}>
                 <div className="font-bold text-slate-800 dark:text-slate-200 leading-tight">
                   Bộ phận sử dụng<br/>
-                  <span className="text-[8.5px] font-normal text-slate-500 dark:text-slate-400">(Cấp 4: Quản Đốc PX)</span>
+                  <span className="text-[8.5px] font-normal text-slate-500 dark:text-slate-400">(Cấp 4: Quản Đốc PX Sử Dụng)</span>
                 </div>
 
                 {chuKy.bo_phan_su_dung?.da_ky ? (
@@ -1088,7 +1088,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
               }`}>
                 <div className="font-bold text-slate-800 dark:text-slate-200 leading-tight">
                   Phụ trách KTCN<br/>
-                  <span className="text-[8.5px] font-normal text-slate-500 dark:text-slate-400">(Cấp 3: Trưởng Phòng KTCN)</span>
+                  <span className="text-[8.5px] font-normal text-slate-500 dark:text-slate-400">(Cấp 3: Phụ Trách KCS / P.KTCN)</span>
                 </div>
 
                 {chuKy.phu_trach_kcs?.da_ky ? (
@@ -1127,7 +1127,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
               }`}>
                 <div className="font-bold text-slate-800 dark:text-slate-200 leading-tight">
                   Người kiểm tra<br/>
-                  <span className="text-[8.5px] font-normal text-slate-500 dark:text-slate-400">(Cấp 2: KCS Nghiệm Thu)</span>
+                  <span className="text-[8.5px] font-normal text-slate-500 dark:text-slate-400">(Cấp 2: KCS Đo Kiểm & Kết Luận)</span>
                 </div>
 
                 {chuKy.nguoi_kiem_tra?.da_ky ? (
@@ -1166,7 +1166,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
               }`}>
                 <div className="font-bold text-slate-800 dark:text-slate-200 leading-tight">
                   Người giao hàng<br/>
-                  <span className="text-[8.5px] font-normal text-slate-500 dark:text-slate-400">(Cấp 1: Đại Diện NCC)</span>
+                  <span className="text-[8.5px] font-normal text-slate-500 dark:text-slate-400">(Cấp 1: P.KHTH Lập Phiếu)</span>
                 </div>
 
                 {chuKy.nguoi_giao_hang?.da_ky ? (
@@ -1181,7 +1181,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                       onClick={() => handleOpenSignModal('nguoi_giao_hang')}
                       className="w-full py-1 px-1 rounded-md bg-amber-600 hover:bg-amber-500 text-white font-bold text-[9.5px] shadow-sm flex items-center justify-center gap-1"
                     >
-                      ✍️ Ký Bàn Giao Hàng
+                      ✍️ Ký Bàn Giao (P.KHTH)
                     </button>
                   </div>
                 )}
@@ -1220,11 +1220,11 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                   </div>
                   <div>
                     <h3 className="font-bold text-sm text-slate-100">
-                      {signingRole === 'nguoi_giao_hang' && 'Ký Bàn Giao Hàng (Cấp 1 - Đại Diện NCC)'}
-                      {signingRole === 'nguoi_kiem_tra' && 'Ký Xác Nhận Đo Kiểm (Cấp 2 - KCS Nghiệm Thu)'}
-                      {signingRole === 'phu_trach_kcs' && 'Ký Duyệt Kỹ Thuật (Cấp 3 - Phụ Trách KTCN)'}
-                      {signingRole === 'bo_phan_su_dung' && 'Ký Tiếp Nhận Sản Xuất (Cấp 4 - Quản Đốc PX)'}
-                      {signingRole === 'lanh_dao_duyet' && 'Phê Duyệt Nhập Kho (Cấp 5 - Ban Giám Đốc)'}
+                      {signingRole === 'nguoi_giao_hang' && 'Ký Bàn Giao (P.KHTH) (Cấp 1 - Đại Diện NCC)'}
+                      {signingRole === 'nguoi_kiem_tra' && 'Ký Đo Kiểm & Đánh Giá (Cấp 2: KCS Nghiệm Thu)'}
+                      {signingRole === 'phu_trach_kcs' && 'Ký Duyệt Kỹ Thuật (Cấp 3: Phụ Trách KCS / P.KTCN)'}
+                      {signingRole === 'bo_phan_su_dung' && 'Ký Tiếp Nhận Sản Xuất (Cấp 4: Quản Đốc PX)'}
+                      {signingRole === 'lanh_dao_duyet' && 'Phê Duyệt Nhập Kho (Cấp 5: Sếp Phê Duyệt / BGĐ)'}
                     </h3>
                     <p className="text-[11px] text-slate-400">Quy trình ký điện tử chuẩn kiểm soát chất lượng ISO</p>
                   </div>

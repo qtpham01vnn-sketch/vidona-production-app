@@ -7,7 +7,7 @@ export const INITIAL_USERS: User[] = [
   { id: '2', username: 'quanly', ma_nv: 'VD-002', full_name: 'Lê Văn Quản Đốc', chuc_danh: 'Quản Đốc Phân Xưởng', phong_ban: 'Phân Xưởng Men', role: 'MANAGEMENT', pin_code: '4444', password: '123', phone: '0912345678', email: 'quandoc@vidona.vn', is_active: true },
   { id: '3', username: 'tp_ktcn', ma_nv: 'VD-003', full_name: 'Vũ Văn Bảy', chuc_danh: 'Trưởng Phòng KTCN', phong_ban: 'Phòng Kỹ Thuật Công Nghệ', role: 'MANAGEMENT', pin_code: '3333', password: '123', phone: '0987654321', email: 'bay.vv@vidona.vn', is_active: true },
   { id: '4', username: 'kcs_nhanvien', ma_nv: 'VD-004', full_name: 'Nguyễn Ngọc Thiệu', chuc_danh: 'KCS Kiểm Tra Nguyên Liệu', phong_ban: 'Tổ KCS', role: 'KCS', pin_code: '1234', password: '123', phone: '0978123456', email: 'thieu.nn@vidona.vn', is_active: true },
-  { id: '5', username: 'thukho', ma_nv: 'VD-005', full_name: 'Trần Văn Kho', chuc_danh: 'Thủ Kho Nguyên Liệu', phong_ban: 'Kho Vật Tư', role: 'KHO', pin_code: '2222', password: '123', phone: '0934567890', email: 'kho.tv@vidona.vn', is_active: true },
+  { id: '5', username: 'thukho', ma_nv: 'VD-005', full_name: 'Trần Văn Kho', chuc_danh: 'P.KHTH / Thủ Kho Lập Phiếu', phong_ban: 'Phòng KHTH & Kho', role: 'KHO', pin_code: '2222', password: '123', phone: '0934567890', email: 'kho.tv@vidona.vn', is_active: true },
   { id: '6', username: 'congnhan', ma_nv: 'VD-006', full_name: 'Trần Thị Bình', chuc_danh: 'Công Nhân Tổ Men', phong_ban: 'Tổ Men', role: 'WORKER', pin_code: '5678', password: '123', phone: '0965432198', email: 'binh.tt@vidona.vn', is_active: true }
 ];
 
