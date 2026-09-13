@@ -203,22 +203,6 @@ export const LoginPage: React.FC = () => {
             <span>📩 Chưa có tài khoản? Gửi yêu cầu kích hoạt & Cấp PIN</span>
           </button>
         </div>
-
-        {/* Gợi ý test nhanh */}
-        <div className="mt-4 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800 text-xs text-slate-500 space-y-1.5">
-          <div className="font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between text-xs sm:text-sm">
-            <span>⚡ Tài khoản mẫu thử nghiệm:</span>
-            <span className="text-emerald-500 font-semibold">Pass: 123</span>
-          </div>
-          <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
-            <div>• BGĐ: <b className="text-sky-600 font-mono">0179</b> (admin)</div>
-            <div>• Quản đốc: <b className="text-sky-600 font-mono">4444</b> (quanly)</div>
-            <div>• TP.KTCN: <b className="text-sky-600 font-mono">3333</b> (tp_ktcn)</div>
-            <div>• KCS: <b className="text-sky-600 font-mono">1234</b> (kcs_nhanvien)</div>
-            <div>• Thủ kho: <b className="text-sky-600 font-mono">2222</b> (thukho)</div>
-            <div>• Công nhân: <b className="text-sky-600 font-mono">5678</b> (congnhan)</div>
-          </div>
-        </div>
       </div>
 
       {/* MODAL GỬI YÊU CẦU KÍCH HOẠT & CẤP TÀI KHOẢN CHO NGƯỜI MỚI */}
