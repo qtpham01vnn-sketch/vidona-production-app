@@ -73,64 +73,108 @@ function docSoThanhChuVN(so: number): string {
   return result.charAt(0).toUpperCase() + result.slice(1);
 }
 
-// Helper đánh giá thông minh kết quả đo KCS so với quy chuẩn TCCS
+// Helper đánh giá thông minh kết quả đo KCS so với quy chuẩn TCCS (Hỗ trợ cả số đơn, số cặp A/B và 3 chiều AxBxC)
 function evalChiTieu(tieuChuanStr: string, valStr: string): 'DAT' | 'KHONG_DAT' {
   if (!valStr || !tieuChuanStr) return 'DAT';
   const tc = tieuChuanStr.trim();
   const val = valStr.trim();
 
-  // 1. Pattern: A ± B (ví dụ: 60 ± 1 mm, 610 ± 1, 1100 ± 5 mm, 16 ± 1)
-  const mPm = tc.match(/([\d\.]+)\s*(?:±|\+\/-)\s*([\d\.]+)/);
-  if (mPm) {
-    const base = parseFloat(mPm[1]);
-    const tol = parseFloat(mPm[2]);
-    const minV = base - tol;
-    const maxV = base + tol;
-    const mVal = val.match(/[-+]?[\d\.]+/);
-    if (mVal) {
-      const v = parseFloat(mVal[0]);
-      if (!isNaN(v)) {
-        return (v >= minV && v <= maxV) ? 'DAT' : 'KHONG_DAT';
+  // Trích xuất dung sai nếu có (ví dụ: ± 1, +/- 2, ± 0.5)
+  const mTol = tc.match(/(?:±|\+\/-)\s*([\d\.]+)/);
+  const tol = mTol ? parseFloat(mTol[1]) : 0.0;
+
+  // Lấy phần tiêu chuẩn trước dấu dung sai
+  const baseTc = tc.split(/(?:±|\+\/-)/)[0].trim();
+
+  // 1. Trường hợp số cặp phân tách bằng dấu gạch chéo '/' (ví dụ: 75/82 ± 1 mm, 76/72 ± 1 mm)
+  if (baseTc.includes('/') && val.includes('/')) {
+    const tcParts = baseTc.match(/[\d\.]+/g);
+    const valParts = val.match(/[\d\.]+/g);
+    if (tcParts && valParts && tcParts.length === valParts.length && tcParts.length > 0) {
+      for (let i = 0; i < tcParts.length; i++) {
+        const tNum = parseFloat(tcParts[i]);
+        const vNum = parseFloat(valParts[i]);
+        const minV = tNum - tol;
+        const maxV = tNum + tol;
+        if (isNaN(vNum) || vNum < minV || vNum > maxV) {
+          return 'KHONG_DAT';
+        }
+      }
+      return 'DAT';
+    }
+  }
+
+  // 2. Trường hợp kích thước 3 chiều hoặc phân tách bằng 'x', 'X', '*' (ví dụ: 54x72x77 ± 1 mm, 600x600x10)
+  if (/[xX\*]/.test(baseTc) && /[xX\*]/.test(val)) {
+    const tcParts = baseTc.match(/[\d\.]+/g);
+    const valParts = val.match(/[\d\.]+/g);
+    if (tcParts && valParts && tcParts.length === valParts.length && tcParts.length > 0) {
+      for (let i = 0; i < tcParts.length; i++) {
+        const tNum = parseFloat(tcParts[i]);
+        const vNum = parseFloat(valParts[i]);
+        const minV = tNum - tol;
+        const maxV = tNum + tol;
+        if (isNaN(vNum) || vNum < minV || vNum > maxV) {
+          return 'KHONG_DAT';
+        }
+      }
+      return 'DAT';
+    }
+  }
+
+  // 3. Trường hợp số đơn có dung sai ± (ví dụ: 610 ± 1 mm, 60 ± 1 mm, 1100 ± 5 mm)
+  if (mTol) {
+    const mBase = baseTc.match(/[\d\.]+/);
+    if (mBase) {
+      const baseVal = parseFloat(mBase[0]);
+      const minV = baseVal - tol;
+      const maxV = baseVal + tol;
+      const mVal = val.match(/[-+]?[\d\.]+/);
+      if (mVal) {
+        const vNum = parseFloat(mVal[0]);
+        if (!isNaN(vNum)) {
+          return (vNum >= minV && vNum <= maxV) ? 'DAT' : 'KHONG_DAT';
+        }
       }
     }
   }
 
-  // 2. Pattern: <= X hoặc ≤ X (ví dụ: ≤ 25.0 %, <= 10.0, ≤ 8.0 %)
-  const mLe = tc.match(/(?:<=|≤|<)\s*([\d\.]+)/);
-  if (mLe) {
-    const maxV = parseFloat(mLe[1]);
-    const mVal = val.match(/[-+]?[\d\.]+/);
-    if (mVal) {
-      const v = parseFloat(mVal[0]);
-      if (!isNaN(v)) {
-        return v <= maxV ? 'DAT' : 'KHONG_DAT';
-      }
-    }
-  }
-
-  // 3. Pattern: >= X hoặc ≥ X (ví dụ: ≥ 170 g/cái, >= 50)
-  const mGe = tc.match(/(?:>=|≥|>)\s*([\d\.]+)/);
-  if (mGe) {
-    const minV = parseFloat(mGe[1]);
-    const mVal = val.match(/[-+]?[\d\.]+/);
-    if (mVal) {
-      const v = parseFloat(mVal[0]);
-      if (!isNaN(v)) {
-        return v >= minV ? 'DAT' : 'KHONG_DAT';
-      }
-    }
-  }
-
-  // 4. Pattern: A ÷ B hoặc A - B (ví dụ: 3.0 ÷ 8.5 %, 72 ÷ 80, 20 ÷ 30)
+  // 4. Trường hợp dải khoảng A ÷ B hoặc A - B (ví dụ: 3.0 ÷ 8.5 %, 72 ÷ 80)
   const mRange = tc.match(/([\d\.]+)\s*(?:÷|~|-|đến)\s*([\d\.]+)/);
   if (mRange) {
     const minV = parseFloat(mRange[1]);
     const maxV = parseFloat(mRange[2]);
     const mVal = val.match(/[-+]?[\d\.]+/);
     if (mVal) {
-      const v = parseFloat(mVal[0]);
-      if (!isNaN(v)) {
-        return (v >= minV && v <= maxV) ? 'DAT' : 'KHONG_DAT';
+      const vNum = parseFloat(mVal[0]);
+      if (!isNaN(vNum)) {
+        return (vNum >= minV && vNum <= maxV) ? 'DAT' : 'KHONG_DAT';
+      }
+    }
+  }
+
+  // 5. Trường hợp <= X hoặc ≤ X (ví dụ: ≤ 25.0 %, <= 10.0 %)
+  const mLe = tc.match(/(?:<=|≤|<)\s*([\d\.]+)/);
+  if (mLe) {
+    const maxV = parseFloat(mLe[1]);
+    const mVal = val.match(/[-+]?[\d\.]+/);
+    if (mVal) {
+      const vNum = parseFloat(mVal[0]);
+      if (!isNaN(vNum)) {
+        return vNum <= maxV ? 'DAT' : 'KHONG_DAT';
+      }
+    }
+  }
+
+  // 6. Trường hợp >= X hoặc ≥ X (ví dụ: ≥ 170 g/cái, >= 50)
+  const mGe = tc.match(/(?:>=|≥|>)\s*([\d\.]+)/);
+  if (mGe) {
+    const minV = parseFloat(mGe[1]);
+    const mVal = val.match(/[-+]?[\d\.]+/);
+    if (mVal) {
+      const vNum = parseFloat(mVal[0]);
+      if (!isNaN(vNum)) {
+        return vNum >= minV ? 'DAT' : 'KHONG_DAT';
       }
     }
   }
