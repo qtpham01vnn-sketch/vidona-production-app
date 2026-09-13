@@ -528,8 +528,8 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex justify-center p-2 sm:p-4 md:p-6">
-      <div className={`w-full max-w-5xl rounded-2xl shadow-2xl flex flex-col my-auto overflow-hidden border ${
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex justify-center p-1 sm:p-4 md:p-6">
+      <div className={`w-full max-w-5xl rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col my-auto overflow-hidden border ${
         theme === 'dark' ? 'bg-[#0f172a] text-slate-100 border-slate-700' : 'bg-white text-slate-900 border-slate-300'
       }`}>
         
@@ -561,13 +561,13 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
             )}
             <button
               onClick={() => window.print()}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-white flex items-center gap-1.5 shadow"
+              className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 hover:bg-slate-700 text-white flex items-center gap-1.5 shadow"
             >
               <Printer size={14} /> In / PDF (A4 Chuẩn)
             </button>
             <button
               onClick={handleSaveForm}
-              className="px-4 py-1.5 rounded-lg text-xs font-bold bg-sky-600 hover:bg-sky-500 text-white flex items-center gap-1.5 shadow-md"
+              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-sky-600 hover:bg-sky-500 text-white flex items-center gap-1.5 shadow-md active:scale-95 transition-all"
             >
               <Save size={14} /> Lưu Phiếu
             </button>
@@ -1015,7 +1015,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
               <div>Ngày {new Date(ngayNhap).getDate()} tháng {new Date(ngayNhap).getMonth() + 1} năm {new Date(ngayNhap).getFullYear()}</div>
             </div>
 
-            <div className="grid grid-cols-5 gap-1.5 text-center text-[10px]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 text-center text-xs">
               
               {/* CẤP 5: Phê duyệt (Ban Giám Đốc) */}
               <div className={`p-1.5 rounded-lg border border-inherit flex flex-col justify-between min-h-[105px] transition-all ${
@@ -1039,7 +1039,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                       <button
                         type="button"
                         onClick={() => handleOpenSignModal('lanh_dao_duyet')}
-                        className="w-full py-1 px-1 rounded-md bg-sky-600 hover:bg-sky-500 text-white font-bold text-[9.5px] shadow-sm flex items-center justify-center gap-1"
+                        className="w-full py-2.5 px-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-extrabold text-xs sm:text-sm shadow-md flex items-center justify-center gap-1.5 active:scale-95 transition-all"
                       >
                         ✍️ Ký Phê Duyệt
                       </button>
@@ -1078,7 +1078,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                       <button
                         type="button"
                         onClick={() => handleOpenSignModal('bo_phan_su_dung')}
-                        className="w-full py-1 px-1 rounded-md bg-sky-600 hover:bg-sky-500 text-white font-bold text-[9.5px] shadow-sm flex items-center justify-center gap-1"
+                        className="w-full py-2.5 px-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-extrabold text-xs sm:text-sm shadow-md flex items-center justify-center gap-1.5 active:scale-95 transition-all"
                       >
                         ✍️ Ký Tiếp Nhận
                       </button>
@@ -1117,7 +1117,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                       <button
                         type="button"
                         onClick={() => handleOpenSignModal('phu_trach_kcs')}
-                        className="w-full py-1 px-1 rounded-md bg-sky-600 hover:bg-sky-500 text-white font-bold text-[9.5px] shadow-sm flex items-center justify-center gap-1"
+                        className="w-full py-2.5 px-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-extrabold text-xs sm:text-sm shadow-md flex items-center justify-center gap-1.5 active:scale-95 transition-all"
                       >
                         ✍️ Ký Duyệt KTCN
                       </button>
@@ -1156,7 +1156,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                       <button
                         type="button"
                         onClick={() => handleOpenSignModal('nguoi_kiem_tra')}
-                        className="w-full py-1 px-1 rounded-md bg-sky-600 hover:bg-sky-500 text-white font-bold text-[9.5px] shadow-sm flex items-center justify-center gap-1"
+                        className="w-full py-2.5 px-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-extrabold text-xs sm:text-sm shadow-md flex items-center justify-center gap-1.5 active:scale-95 transition-all"
                       >
                         ✍️ Ký KCS Xác Nhận
                       </button>
