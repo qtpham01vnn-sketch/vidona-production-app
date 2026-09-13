@@ -74,18 +74,18 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[#0a1128] via-[#101f42] to-[#0a1128]">
-      <div className="w-full max-w-[440px] bg-white dark:bg-[#111827] rounded-[28px] p-7 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 relative">
+    <div className="min-h-screen w-full flex items-center justify-center p-3 sm:p-6 bg-gradient-to-br from-[#0a1128] via-[#101f42] to-[#0a1128]">
+      <div className="w-full max-w-[460px] bg-white dark:bg-[#111827] rounded-3xl sm:rounded-[32px] p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 relative my-auto">
         
         {/* Brand Header */}
-        <div className="text-center mb-6">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-700 to-indigo-600 mx-auto flex items-center justify-center text-white shadow-lg shadow-blue-600/30 mb-3">
-            <Lock size={26} />
+        <div className="text-center mb-5 sm:mb-6">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-blue-700 to-indigo-600 mx-auto flex items-center justify-center text-white shadow-lg shadow-blue-600/30 mb-3">
+            <Lock size={28} />
           </div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
             VIDONA PXSX
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
             Hệ Thống Quản Lý Phối Liệu Xưởng & Cổng Công Dân Số
           </p>
         </div>
@@ -95,26 +95,26 @@ export const LoginPage: React.FC = () => {
           <button
             type="button"
             onClick={() => { setTab('PASSWORD'); setError(''); }}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+            className={`flex-1 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all ${
               tab === 'PASSWORD'
                 ? 'bg-white dark:bg-slate-900 text-blue-700 dark:text-sky-400 shadow-sm'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Building2 size={15} />
+            <Building2 size={16} />
             <span>Văn Phòng (Mật Khẩu)</span>
           </button>
           
           <button
             type="button"
             onClick={() => { setTab('PIN'); setError(''); }}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+            className={`flex-1 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all ${
               tab === 'PIN'
                 ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Factory size={15} />
+            <Factory size={16} />
             <span>PIN Nhanh 4 Số (Xưởng)</span>
           </button>
         </div>
@@ -124,92 +124,93 @@ export const LoginPage: React.FC = () => {
           {tab === 'PASSWORD' ? (
             <>
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                   Tên đăng nhập / Số điện thoại / Mã NV
                 </label>
                 <div className="relative">
-                  <User size={17} className="absolute left-3.5 top-3 text-slate-400" />
+                  <User size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="text"
                     value={identifier}
                     onChange={e => { setIdentifier(e.target.value); setError(''); }}
                     placeholder="VD: VD-001, admin, 0901234567"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/90 text-sm font-medium focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white"
+                    className="w-full pl-11 pr-4 py-3 rounded-xl sm:rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/90 text-sm sm:text-base font-medium focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                   Mật khẩu
                 </label>
                 <div className="relative">
-                  <KeyRound size={17} className="absolute left-3.5 top-3 text-slate-400" />
+                  <KeyRound size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="password"
                     value={password}
                     onChange={e => { setPassword(e.target.value); setError(''); }}
                     placeholder="••••"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/90 text-sm font-medium focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white"
+                    className="w-full pl-11 pr-4 py-3 rounded-xl sm:rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/90 text-sm sm:text-base font-medium focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white"
                   />
                 </div>
               </div>
             </>
           ) : (
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 text-center mb-1">
+            <div className="space-y-3">
+              <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 text-center">
                 Nhập Mã PIN 4 Chữ Số Của Bạn:
               </label>
-              <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center">
+              <div className="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center">
                 <input
                   type="password"
+                  inputMode="numeric"
                   maxLength={4}
                   value={pin}
                   onChange={e => { setPin(e.target.value.replace(/[^0-9]/g, '')); setError(''); }}
                   placeholder="••••"
                   autoFocus
-                  className="w-full bg-transparent text-center font-mono text-3xl tracking-[0.6em] font-black text-white focus:outline-none"
+                  className="w-full bg-transparent text-center font-mono text-3xl sm:text-4xl tracking-[0.6em] font-black text-white focus:outline-none"
                 />
               </div>
-              <p className="text-[11px] text-slate-400 text-center">
+              <p className="text-xs text-slate-400 text-center">
                 Nhập mã PIN 4 chữ số cá nhân đã được cấp để đăng nhập nhanh
               </p>
             </div>
           )}
 
           {error && (
-            <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center gap-2">
-              <AlertCircle size={15} className="shrink-0" />
+            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs sm:text-sm font-semibold flex items-center gap-2">
+              <AlertCircle size={16} className="shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           <button
             type="submit"
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-sm shadow-md shadow-blue-500/25 transition-all"
+            className="w-full py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-sm sm:text-base shadow-lg shadow-blue-500/25 transition-all"
           >
             ĐĂNG NHẬP HỆ THỐNG
           </button>
         </form>
 
         {/* Link gửi yêu cầu cấp tài khoản */}
-        <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 text-center">
+        <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-800 text-center">
           <button
             type="button"
             onClick={() => { setShowActivationModal(true); setReqSuccessMsg(''); setError(''); }}
-            className="text-xs font-bold text-blue-600 dark:text-sky-400 hover:underline inline-flex items-center gap-1.5"
+            className="text-xs sm:text-sm font-bold text-blue-600 dark:text-sky-400 hover:underline inline-flex items-center gap-1.5"
           >
             <span>📩 Chưa có tài khoản? Gửi yêu cầu kích hoạt & Cấp PIN</span>
           </button>
         </div>
 
         {/* Gợi ý test nhanh */}
-        <div className="mt-4 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800 text-[11px] text-slate-500 space-y-1">
-          <div className="font-bold text-slate-600 dark:text-slate-400 flex items-center justify-between">
+        <div className="mt-4 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800 text-xs text-slate-500 space-y-1.5">
+          <div className="font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between text-xs sm:text-sm">
             <span>⚡ Tài khoản mẫu thử nghiệm:</span>
-            <span className="text-emerald-500">Pass: 123</span>
+            <span className="text-emerald-500 font-semibold">Pass: 123</span>
           </div>
-          <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[10px]">
+          <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
             <div>• BGĐ: <b className="text-sky-600 font-mono">0179</b> (admin)</div>
             <div>• Quản đốc: <b className="text-sky-600 font-mono">4444</b> (quanly)</div>
             <div>• TP.KTCN: <b className="text-sky-600 font-mono">3333</b> (tp_ktcn)</div>
@@ -222,8 +223,8 @@ export const LoginPage: React.FC = () => {
 
       {/* MODAL GỬI YÊU CẦU KÍCH HOẠT & CẤP TÀI KHOẢN CHO NGƯỜI MỚI */}
       {showActivationModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-lg shadow-2xl relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-7 w-full max-w-lg shadow-2xl relative max-h-[92vh] overflow-y-auto">
             <button
               onClick={() => setShowActivationModal(false)}
               className="absolute top-5 right-5 p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-lg"
@@ -232,29 +233,29 @@ export const LoginPage: React.FC = () => {
             </button>
 
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-11 h-11 rounded-2xl bg-blue-500/20 text-blue-600 dark:text-sky-400 flex items-center justify-center">
-                <Mail size={22} />
+              <div className="w-12 h-12 rounded-2xl bg-blue-500/20 text-blue-600 dark:text-sky-400 flex items-center justify-center">
+                <Mail size={24} />
               </div>
               <div>
-                <h3 className="font-black text-lg text-slate-900 dark:text-white">Gửi Yêu Cầu Cấp Tài Khoản & Mã PIN</h3>
-                <p className="text-xs text-slate-500">Dành cho nhân sự mới tham gia hệ thống sản xuất Vidona</p>
+                <h3 className="font-black text-lg sm:text-xl text-slate-900 dark:text-white">Gửi Yêu Cầu Cấp Tài Khoản & Mã PIN</h3>
+                <p className="text-xs sm:text-sm text-slate-500">Dành cho nhân sự mới tham gia hệ thống sản xuất Vidona</p>
               </div>
             </div>
 
             {reqSuccessMsg ? (
-              <div className="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 space-y-3 text-center">
-                <CheckCircle2 size={40} className="mx-auto text-emerald-500" />
-                <h4 className="font-bold text-sm">Gửi Yêu Cầu Thành Công!</h4>
-                <p className="text-xs">{reqSuccessMsg}</p>
+              <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 space-y-3 text-center">
+                <CheckCircle2 size={44} className="mx-auto text-emerald-500" />
+                <h4 className="font-bold text-base">Gửi Yêu Cầu Thành Công!</h4>
+                <p className="text-xs sm:text-sm">{reqSuccessMsg}</p>
                 <button
                   onClick={() => setShowActivationModal(false)}
-                  className="mt-2 px-6 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow"
+                  className="mt-3 px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-sm shadow"
                 >
                   Đóng & Quay Lại Đăng Nhập
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSendActivation} className="space-y-3 text-xs">
+              <form onSubmit={handleSendActivation} className="space-y-3.5 text-xs sm:text-sm">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Họ và tên (*):</label>
@@ -264,7 +265,7 @@ export const LoginPage: React.FC = () => {
                       value={reqFullName}
                       onChange={e => setReqFullName(e.target.value)}
                       placeholder="VD: Nguyễn Văn A"
-                      className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                      className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
                     />
                   </div>
                   <div>
@@ -274,7 +275,7 @@ export const LoginPage: React.FC = () => {
                       value={reqMaNv}
                       onChange={e => setReqMaNv(e.target.value)}
                       placeholder="VD: VD-108"
-                      className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                      className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
                     />
                   </div>
                 </div>
@@ -288,7 +289,7 @@ export const LoginPage: React.FC = () => {
                       value={reqEmail}
                       onChange={e => setReqEmail(e.target.value)}
                       placeholder="email@vidona.vn"
-                      className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                      className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
                     />
                   </div>
                   <div>
@@ -299,7 +300,7 @@ export const LoginPage: React.FC = () => {
                       value={reqPhone}
                       onChange={e => setReqPhone(e.target.value)}
                       placeholder="09xxxxxxxx"
-                      className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                      className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
                     />
                   </div>
                 </div>
@@ -310,7 +311,7 @@ export const LoginPage: React.FC = () => {
                     <select
                       value={reqDept}
                       onChange={e => setReqDept(e.target.value)}
-                      className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium"
+                      className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium"
                     >
                       <option value="Phân Xưởng Men">Phân Xưởng Men</option>
                       <option value="Phân Xưởng Xương">Phân Xưởng Xương</option>
@@ -327,7 +328,7 @@ export const LoginPage: React.FC = () => {
                       value={reqTitle}
                       onChange={e => setReqTitle(e.target.value)}
                       placeholder="VD: Nhân viên KCS, Công nhân..."
-                      className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                      className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
                     />
                   </div>
                 </div>
@@ -339,7 +340,7 @@ export const LoginPage: React.FC = () => {
                     value={reqReason}
                     onChange={e => setReqReason(e.target.value)}
                     placeholder="Ghi rõ phân xưởng hoặc nhiệm vụ kiểm tra..."
-                    className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                    className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
                   />
                 </div>
 
@@ -347,16 +348,16 @@ export const LoginPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowActivationModal(false)}
-                    className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-100 dark:hover:bg-slate-800"
+                    className="px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-100 dark:hover:bg-slate-800"
                   >
                     Hủy
                   </button>
                   <button
                     type="submit"
                     disabled={reqLoading}
-                    className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow flex items-center gap-2"
+                    className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow flex items-center gap-2 text-sm"
                   >
-                    <Send size={15} />
+                    <Send size={16} />
                     <span>{reqLoading ? 'Đang gửi...' : 'Gửi Yêu Cầu Kích Hoạt'}</span>
                   </button>
                 </div>
