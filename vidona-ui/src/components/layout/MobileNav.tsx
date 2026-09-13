@@ -16,7 +16,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ currentPage, onSelectPage,
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#0b1329]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-2 py-1.5 flex items-center justify-around shadow-2xl lg:hidden no-print safe-area-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/98 dark:bg-[#0b1329]/98 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 px-3 py-2 flex items-center justify-around shadow-2xl lg:hidden no-print safe-area-bottom">
       {NAV_ITEMS.map(item => {
         const Icon = item.icon;
         const isActive = currentPage === item.key;
@@ -24,14 +24,14 @@ export const MobileNav: React.FC<MobileNavProps> = ({ currentPage, onSelectPage,
           <button
             key={item.key}
             onClick={() => onSelectPage(item.key)}
-            className={`flex flex-col items-center justify-center gap-1 py-1 px-3 rounded-xl transition-all ${
+            className={`flex flex-col items-center justify-center gap-1.5 py-1.5 px-3 rounded-2xl transition-all ${
               isActive
-                ? 'text-sky-600 dark:text-sky-400 font-extrabold bg-sky-50 dark:bg-sky-950/60 scale-105'
-                : 'text-slate-500 dark:text-slate-400 font-medium hover:text-slate-900 dark:hover:text-white'
+                ? 'text-sky-600 dark:text-sky-400 font-black bg-sky-50 dark:bg-sky-950/70 scale-105 shadow-sm'
+                : 'text-slate-500 dark:text-slate-400 font-semibold hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Icon size={19} className={isActive ? 'stroke-[2.5]' : 'stroke-[1.8]'} />
-            <span className="text-[10px] leading-tight">{item.label}</span>
+            <Icon size={22} className={isActive ? 'stroke-[2.5]' : 'stroke-[1.8]'} />
+            <span className="text-xs leading-none">{item.label}</span>
           </button>
         );
       })}
@@ -39,10 +39,10 @@ export const MobileNav: React.FC<MobileNavProps> = ({ currentPage, onSelectPage,
       {/* Nút mở Menu đầy đủ */}
       <button
         onClick={onOpenMenu}
-        className="flex flex-col items-center justify-center gap-1 py-1 px-3 rounded-xl text-slate-500 dark:text-slate-400 font-medium hover:text-sky-600 dark:hover:text-sky-400 transition-all"
+        className="flex flex-col items-center justify-center gap-1.5 py-1.5 px-3 rounded-2xl text-slate-500 dark:text-slate-400 font-semibold hover:text-sky-600 dark:hover:text-sky-400 transition-all"
       >
-        <Menu size={19} className="stroke-[1.8]" />
-        <span className="text-[10px] leading-tight">Thêm</span>
+        <Menu size={22} className="stroke-[1.8]" />
+        <span className="text-xs leading-none">Thêm</span>
       </button>
     </nav>
   );

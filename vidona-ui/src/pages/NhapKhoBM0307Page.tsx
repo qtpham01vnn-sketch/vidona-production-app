@@ -110,38 +110,38 @@ export const NhapKhoBM0307Page: React.FC = () => {
   const getDuyetBadge = (r: BM0307Record) => {
     if (r.chu_ky?.lanh_dao_duyet?.da_ky) {
       return (
-        <span className="px-2.5 py-1 rounded-lg text-[11px] font-black bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
-          <ShieldCheck size={13} /> ✓ ĐÃ DUYỆT (5/5)
+        <span className="px-3 py-1 rounded-xl text-xs font-black bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/35 flex items-center gap-1.5 shadow-sm">
+          <ShieldCheck size={14} /> ✓ ĐÃ DUYỆT (5/5)
         </span>
       );
     } else if (r.chu_ky?.bo_phan_su_dung?.da_ky) {
       return (
-        <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-sky-500/15 text-sky-700 dark:text-sky-400 border border-sky-500/30 flex items-center gap-1">
-          <Clock size={13} /> Chờ Cấp 5 (Sếp Duyệt)
+        <span className="px-3 py-1 rounded-xl text-xs font-bold bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-500/35 flex items-center gap-1.5">
+          <Clock size={14} /> Chờ Cấp 5 (Sếp Duyệt)
         </span>
       );
     } else if (r.chu_ky?.phu_trach_kcs?.da_ky) {
       return (
-        <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30 flex items-center gap-1">
-          <Clock size={13} /> Chờ Cấp 4 (Quản Đốc)
+        <span className="px-3 py-1 rounded-xl text-xs font-bold bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/35 flex items-center gap-1.5">
+          <Clock size={14} /> Chờ Cấp 4 (Quản Đốc)
         </span>
       );
     } else if (r.chu_ky?.nguoi_kiem_tra?.da_ky) {
       return (
-        <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1">
-          <Clock size={13} /> Chờ Cấp 3 (P.KTCN)
+        <span className="px-3 py-1 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/35 flex items-center gap-1.5">
+          <Clock size={14} /> Chờ Cấp 3 (P.KTCN)
         </span>
       );
     } else if (r.chu_ky?.nguoi_giao_hang?.da_ky) {
       return (
-        <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1">
-          <Clock size={13} /> Chờ Cấp 2 (KCS Ktra)
+        <span className="px-3 py-1 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/35 flex items-center gap-1.5">
+          <Clock size={14} /> Chờ Cấp 2 (KCS Ktra)
         </span>
       );
     } else {
       return (
-        <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-500/15 text-slate-600 dark:text-slate-400 border border-slate-500/30 flex items-center gap-1">
-          <Clock size={13} /> Chờ Cấp 1 (P.KHTH Lập)
+        <span className="px-3 py-1 rounded-xl text-xs font-bold bg-slate-500/20 text-slate-700 dark:text-slate-300 border border-slate-500/35 flex items-center gap-1.5">
+          <Clock size={14} /> Chờ Cấp 1 (P.KHTH Lập)
         </span>
       );
     }
@@ -151,16 +151,16 @@ export const NhapKhoBM0307Page: React.FC = () => {
     <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto">
       
       {/* Title & Action */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <div className="p-2.5 rounded-2xl bg-sky-500/20 text-sky-600 dark:text-sky-400 shrink-0">
-            <FileText size={22} />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+        <div className="flex items-center gap-3">
+          <div className="p-3 rounded-2xl bg-sky-500/20 text-sky-600 dark:text-sky-400 shrink-0 shadow-sm">
+            <FileText size={26} />
           </div>
           <div>
-            <h1 className="text-lg sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
               Phiếu Nhập Kho & KCS (BM.03.07)
             </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
               Quy trình kiểm soát chất lượng & ký duyệt 5 cấp điện tử theo TCCS TC.09.01
             </p>
           </div>
@@ -169,57 +169,57 @@ export const NhapKhoBM0307Page: React.FC = () => {
         {canCreateBM0307 && (
           <button
             onClick={handleCreateNew}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-sky-500/25 transition-all"
+            className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-xl shadow-sky-500/30 transition-all active:scale-[0.98]"
           >
-            <Plus size={18} /> + Lập Phiếu BM.03.07 Mới
+            <Plus size={20} /> + Lập Phiếu BM.03.07 Mới
           </button>
         )}
       </div>
 
       {/* FILTER BOX */}
-      <div className="glass-panel p-3.5 sm:p-5 rounded-2xl space-y-3">
+      <div className="glass-panel p-4 sm:p-5 rounded-2xl space-y-3.5">
         
         {/* Thanh tìm kiếm nhanh & Nút mở rộng bộ lọc */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <div className="relative flex-1">
-            <Search size={15} className="absolute left-3 top-2.5 text-slate-400" />
+            <Search size={18} className="absolute left-3.5 top-3 text-slate-400" />
             <input 
               type="text" 
               value={materialSearch} 
               onChange={(e) => setMaterialSearch(e.target.value)} 
-              placeholder="Tìm nhanh tên hàng, mã TCCS, pallet..."
-              className="w-full pl-9 pr-3 py-2 rounded-xl text-xs bg-white dark:bg-slate-800 border"
+              placeholder="Tìm nhanh tên hàng, mã TCCS, pallet, đất sét..."
+              className="w-full pl-11 pr-4 py-2.5 rounded-xl text-sm bg-white dark:bg-slate-800 border font-medium"
             />
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`px-3 py-2 rounded-xl text-xs font-bold border flex items-center gap-1.5 transition-all ${
+            className={`px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold border flex items-center gap-1.5 transition-all shadow-sm ${
               showFilters 
                 ? 'bg-sky-600 text-white border-sky-600' 
                 : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700'
             }`}
           >
-            <Filter size={14} /> <span className="hidden sm:inline">Bộ Lọc</span>
+            <Filter size={16} /> <span className="hidden sm:inline">Bộ Lọc</span>
           </button>
           <button
             onClick={loadData}
-            className="p-2 rounded-xl border text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700"
+            className="p-2.5 rounded-xl border text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm"
             title="Tải lại dữ liệu"
           >
-            <RefreshCw size={15} />
+            <RefreshCw size={17} />
           </button>
         </div>
 
-        {/* Bộ lọc chi tiết (Collapsible on mobile) */}
+        {/* Bộ lọc chi tiết */}
         {showFilters && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-2 text-xs border-t border-inherit">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 text-xs sm:text-sm border-t border-inherit">
             <div>
               <label className="block text-slate-600 dark:text-slate-400 font-bold mb-1">📅 Từ Ngày</label>
               <input 
                 type="date" 
                 value={fromDate} 
                 onChange={(e) => setFromDate(e.target.value)} 
-                className="w-full text-xs"
+                className="w-full"
               />
             </div>
             <div>
@@ -228,7 +228,7 @@ export const NhapKhoBM0307Page: React.FC = () => {
                 type="date" 
                 value={toDate} 
                 onChange={(e) => setToDate(e.target.value)} 
-                className="w-full text-xs"
+                className="w-full"
               />
             </div>
             <div>
@@ -238,7 +238,7 @@ export const NhapKhoBM0307Page: React.FC = () => {
                 value={supplierSearch} 
                 onChange={(e) => setSupplierSearch(e.target.value)} 
                 placeholder="VD: DNTN Gỗ, Hưng Phát..."
-                className="w-full text-xs"
+                className="w-full"
               />
             </div>
             <div>
@@ -246,7 +246,7 @@ export const NhapKhoBM0307Page: React.FC = () => {
               <select 
                 value={kcsStatusFilter} 
                 onChange={(e) => setKcsStatusFilter(e.target.value as any)}
-                className="w-full text-xs font-semibold"
+                className="w-full font-bold"
               >
                 <option value="all">Tất Cả Kết Quả</option>
                 <option value="DAT">🟢 Đạt Tiêu Chuẩn</option>
@@ -257,43 +257,43 @@ export const NhapKhoBM0307Page: React.FC = () => {
         )}
 
         {/* Tab lọc trạng thái - Horizontal Scroll on Mobile */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 scrollbar-none text-xs">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 scrollbar-none text-xs sm:text-sm">
           <button
             onClick={() => setActiveTab('all')}
-            className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all ${
+            className={`px-4 py-2 rounded-xl font-bold whitespace-nowrap transition-all shadow-sm ${
               activeTab === 'all' 
-                ? 'bg-sky-600 text-white shadow-sm' 
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-sky-600 text-white' 
+                : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             Tất Cả ({records.length})
           </button>
           <button
             onClick={() => setActiveTab('pending')}
-            className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all ${
+            className={`px-4 py-2 rounded-xl font-bold whitespace-nowrap transition-all shadow-sm ${
               activeTab === 'pending' 
-                ? 'bg-amber-500 text-slate-950 font-black shadow-sm' 
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-amber-500 text-slate-950 font-black' 
+                : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             ⏳ Chờ Duyệt ({records.filter(r => !r.chu_ky?.lanh_dao_duyet?.da_ky && r.ket_luan !== 'KHONG_DAT').length})
           </button>
           <button
             onClick={() => setActiveTab('rejected')}
-            className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all ${
+            className={`px-4 py-2 rounded-xl font-bold whitespace-nowrap transition-all shadow-sm ${
               activeTab === 'rejected' 
-                ? 'bg-rose-600 text-white shadow-sm' 
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-rose-600 text-white' 
+                : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             ❌ Lỗi ({records.filter(r => r.ket_luan === 'KHONG_DAT').length})
           </button>
           <button
             onClick={() => setActiveTab('completed')}
-            className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all ${
+            className={`px-4 py-2 rounded-xl font-bold whitespace-nowrap transition-all shadow-sm ${
               activeTab === 'completed' 
-                ? 'bg-emerald-600 text-white shadow-sm' 
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-emerald-600 text-white' 
+                : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             ✓ Đã Duyệt ({records.filter(r => r.chu_ky?.lanh_dao_duyet?.da_ky).length})
@@ -301,10 +301,10 @@ export const NhapKhoBM0307Page: React.FC = () => {
         </div>
       </div>
 
-      {/* 📱 1. MOBILE CARDS VIEW (HIỂN THỊ ĐẸP, RÕ RÀNG TRÊN ĐIỆN THOẠI) */}
-      <div className="block lg:hidden space-y-3">
+      {/* 📱 1. MOBILE CARDS VIEW (RÕ RÀNG, CHỮ TO BẢN, RẤT DỄ ĐỌC TRÊN ĐIỆN THOẠI) */}
+      <div className="block lg:hidden space-y-3.5">
         {filteredRecords.length === 0 ? (
-          <div className="text-center py-10 text-slate-500 italic glass-panel rounded-2xl">
+          <div className="text-center py-12 text-slate-500 italic glass-panel rounded-2xl">
             Không tìm thấy phiếu nào
           </div>
         ) : (
@@ -312,50 +312,53 @@ export const NhapKhoBM0307Page: React.FC = () => {
             <div 
               key={r.id}
               onClick={() => handleEdit(r)}
-              className="p-4 rounded-2xl glass-panel border border-slate-200 dark:border-slate-800 space-y-3 active:scale-[0.99] transition-all cursor-pointer shadow-sm"
+              className="p-4 sm:p-5 rounded-2xl glass-panel border border-slate-200 dark:border-slate-800 space-y-3 active:scale-[0.99] transition-all cursor-pointer shadow-md"
             >
-              <div className="flex items-start justify-between gap-2">
+              {/* Card Header: Số Phiếu & Trạng Thái Đạt/Không Đạt */}
+              <div className="flex items-center justify-between gap-2 border-b border-inherit pb-2.5">
                 <div>
-                  <div className="font-mono font-black text-base text-sky-600 dark:text-sky-400">
+                  <div className="font-mono font-black text-lg text-sky-600 dark:text-sky-400">
                     {r.so_phieu}
                   </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
-                    <Calendar size={12} /> {new Date(r.ngay_kiem_tra).toLocaleDateString('vi-VN')}
+                  <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5 font-medium">
+                    <Calendar size={13} /> {new Date(r.ngay_kiem_tra).toLocaleDateString('vi-VN')}
                   </div>
                 </div>
                 <div>
                   {r.ket_luan === 'DAT' ? (
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
-                      🟢 Đạt
+                    <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40 shadow-sm">
+                      🟢 Đạt Chuẩn
                     </span>
                   ) : (
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
-                      🔴 K.Đạt
+                    <span className="px-3 py-1 rounded-full text-xs font-black bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/40 shadow-sm">
+                      🔴 Không Đạt
                     </span>
                   )}
                 </div>
               </div>
 
-              <div className="space-y-1 text-xs">
-                <div className="font-bold text-slate-900 dark:text-white text-sm">
+              {/* Card Body: Tên Hàng, Số Lượng, NCC */}
+              <div className="space-y-1.5">
+                <div className="font-extrabold text-slate-900 dark:text-white text-base">
                   {r.ten_hang_hoa}
                 </div>
-                <div className="text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                  <span>NCC: <strong>{r.nha_cung_cap}</strong></span>
-                  <span className="font-mono text-[11px] text-sky-600 dark:text-sky-400">TCCS: {r.ma_tccs}</span>
+                <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 flex items-center justify-between">
+                  <span>NCC: <strong className="text-slate-900 dark:text-slate-100">{r.nha_cung_cap}</strong></span>
+                  <span className="font-mono text-xs font-bold text-sky-600 dark:text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded">TCCS: {r.ma_tccs}</span>
                 </div>
-                <div className="font-bold text-emerald-600 dark:text-emerald-400 text-sm pt-1">
-                  SL: {r.so_luong_nhap.toLocaleString('vi-VN')} {r.don_vi_tinh}
+                <div className="font-black text-emerald-600 dark:text-emerald-400 text-base sm:text-lg pt-1">
+                  Số lượng: {r.so_luong_nhap.toLocaleString('vi-VN')} <span className="text-xs font-bold text-slate-500">{r.don_vi_tinh}</span>
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              {/* Card Footer: Tiến Độ Duyệt 5 Cấp & Nút Ký/Xem */}
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2">
                 <div>{getDuyetBadge(r)}</div>
                 <button
                   onClick={(e) => { e.stopPropagation(); handleEdit(r); }}
-                  className="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs flex items-center gap-1 shadow"
+                  className="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-md active:scale-95 transition-all"
                 >
-                  <Edit size={13} /> Ký / Xem
+                  <Edit size={15} /> Ký / Xem
                 </button>
               </div>
             </div>
@@ -366,30 +369,30 @@ export const NhapKhoBM0307Page: React.FC = () => {
       {/* 💻 2. DESKTOP TABLE VIEW (HIỂN THỊ CHI TIẾT TRÊN MÁY TÍNH) */}
       <div className="hidden lg:block glass-panel rounded-2xl overflow-hidden shadow-sm">
         <div className="p-4 border-b border-inherit flex items-center justify-between">
-          <div className="text-sm font-bold text-slate-900 dark:text-slate-200 flex items-center gap-2">
-            <Layers size={16} className="text-sky-600 dark:text-sky-400" />
+          <div className="text-base font-bold text-slate-900 dark:text-slate-200 flex items-center gap-2">
+            <Layers size={18} className="text-sky-600 dark:text-sky-400" />
             <span>Danh Sách Phiếu Nhập Kho & KCS ({filteredRecords.length} Phiếu)</span>
           </div>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="table-custom text-xs">
+          <table className="table-custom text-sm">
             <thead>
               <tr>
-                <th className="w-24 text-center">Số Phiếu</th>
-                <th className="w-28">Ngày Nhập</th>
+                <th className="w-28 text-center">Số Phiếu</th>
+                <th className="w-32">Ngày Nhập</th>
                 <th>Nhà Cung Cấp</th>
                 <th>Tên Hàng Hóa</th>
                 <th className="text-right">Khối Lượng</th>
-                <th className="text-center w-28">Đánh Giá KCS</th>
-                <th className="text-center w-40">Tiến Độ Duyệt</th>
-                <th className="text-center w-28">Thao Tác</th>
+                <th className="text-center w-32">Đánh Giá KCS</th>
+                <th className="text-center w-48">Tiến Độ Duyệt</th>
+                <th className="text-center w-32">Thao Tác</th>
               </tr>
             </thead>
             <tbody>
               {filteredRecords.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-8 text-slate-500 italic">
+                  <td colSpan={8} className="text-center py-10 text-slate-500 italic">
                     Không tìm thấy phiếu BM.03.07 nào phù hợp bộ lọc
                   </td>
                 </tr>
@@ -399,7 +402,7 @@ export const NhapKhoBM0307Page: React.FC = () => {
                     <td className="text-center font-bold text-sky-600 dark:text-sky-400">
                       <button 
                         onClick={() => handleEdit(r)}
-                        className="hover:underline font-mono text-sm"
+                        className="hover:underline font-mono text-base font-black"
                       >
                         {r.so_phieu}
                       </button>
@@ -411,19 +414,19 @@ export const NhapKhoBM0307Page: React.FC = () => {
                       {r.nha_cung_cap}
                     </td>
                     <td>
-                      <div className="font-bold text-slate-900 dark:text-slate-100">{r.ten_hang_hoa}</div>
-                      <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">TCCS: {r.ma_tccs}</div>
+                      <div className="font-bold text-slate-900 dark:text-slate-100 text-sm">{r.ten_hang_hoa}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400 font-mono">TCCS: {r.ma_tccs}</div>
                     </td>
-                    <td className="text-right font-bold text-emerald-600 dark:text-emerald-400 text-sm">
+                    <td className="text-right font-black text-emerald-600 dark:text-emerald-400 text-base">
                       {r.so_luong_nhap.toLocaleString()} <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">{r.don_vi_tinh}</span>
                     </td>
                     <td className="text-center">
                       {r.ket_luan === 'DAT' ? (
-                        <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                        <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                           🟢 Đạt
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                        <span className="px-3 py-1 rounded-full text-xs font-black bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                           🔴 K.Đạt
                         </span>
                       )}
@@ -432,20 +435,20 @@ export const NhapKhoBM0307Page: React.FC = () => {
                       {getDuyetBadge(r)}
                     </td>
                     <td className="text-center">
-                      <div className="flex items-center justify-center gap-1.5">
+                      <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => handleEdit(r)}
-                          className="p-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-600 dark:text-sky-400"
+                          className="p-2 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-600 dark:text-sky-400"
                           title="Xem / In / Ký duyệt"
                         >
-                          <Printer size={15} />
+                          <Printer size={16} />
                         </button>
                         <button
                           onClick={() => handleEdit(r)}
-                          className="p-1.5 rounded-lg bg-slate-200 dark:bg-slate-700/50 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300"
+                          className="p-2 rounded-xl bg-slate-200 dark:bg-slate-700/50 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300"
                           title="Chỉnh sửa phiếu"
                         >
-                          <Edit size={15} />
+                          <Edit size={16} />
                         </button>
                       </div>
                     </td>
