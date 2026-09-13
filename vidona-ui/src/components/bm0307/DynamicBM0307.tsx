@@ -347,43 +347,60 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
     setChiTieuList(chiTieuList.filter((_, i) => i !== idx));
   };
 
-  // KIỂM TRA ĐIỀU KIỆN TUẦN TỰ 5 CẤP (KHÔNG ĐƯỢC VƯỢT CẤP)
+  // KIỂM TRA ĐIỀU KIỆN TUẦN TỰ 5 CẤP & PHÂN QUYỀN CHẶT CHẼ
   const checkCanSign = (roleKey: RoleKeyType): { allowed: boolean; reason?: string } => {
-    if (roleKey === 'nguoi_giao_hang') {
-      return { allowed: true };
+    // 1. Kiểm tra thứ tự tuần tự
+    if (roleKey === 'nguoi_kiem_tra' && !chuKy.nguoi_giao_hang?.da_ky) {
+      return { allowed: false, reason: 'Cấp 1: P.KHTH / Người giao hàng chưa ký! Bắt buộc Cấp 1 phải ký trước.' };
     }
-    if (roleKey === 'nguoi_kiem_tra') {
-      if (!chuKy.nguoi_giao_hang?.da_ky) {
-        return { allowed: false, reason: 'Cấp 1: Người giao hàng (NCC/Kho) chưa ký bàn giao! Bắt buộc Người giao hàng phải ký trước.' };
+    if (roleKey === 'phu_trach_kcs' && !chuKy.nguoi_kiem_tra?.da_ky) {
+      return { allowed: false, reason: 'Cấp 2: KCS chưa đo kiểm và ký xác nhận! Bắt buộc KCS phải ký trước.' };
+    }
+    if (roleKey === 'bo_phan_su_dung' && !chuKy.phu_trach_kcs?.da_ky) {
+      return { allowed: false, reason: 'Cấp 3: Phụ trách KTCN chưa ký duyệt! Không được ký vượt cấp.' };
+    }
+    if (roleKey === 'lanh_dao_duyet' && !chuKy.bo_phan_su_dung?.da_ky) {
+      return { allowed: false, reason: 'Cấp 4: Quản Đốc Phân Xưởng chưa ký tiếp nhận! Không được duyệt vượt cấp.' };
+    }
+
+    // 2. Kiểm tra thẩm quyền tài khoản đang đăng nhập (Tài khoản nào chỉ được ký cấp đó)
+    if (user) {
+      if (roleKey === 'nguoi_giao_hang') {
+        // Cấp 1: Chỉ KHO / P.KHTH (VD-005) hoặc người giao nhận
+        if (user.role !== 'KHO' && user.ma_nv !== 'VD-005' && user.role !== 'ADMIN') {
+          return { allowed: false, reason: 'Cấp 1 thuộc thẩm quyền của P.KHTH / Thủ Kho (VD-005). Tài khoản của bạn không có quyền ký cấp này!' };
+        }
+      } else if (roleKey === 'nguoi_kiem_tra') {
+        // Cấp 2: BẮT BUỘC chỉ tài khoản KCS (VD-004 - Nguyễn Ngọc Thiệu)
+        if (user.role !== 'KCS' && user.ma_nv !== 'VD-004') {
+          return { allowed: false, reason: 'Cấp 2 thuộc thẩm quyền của Tổ KCS (VD-004 - Nguyễn Ngọc Thiệu). Vui lòng đăng nhập tài khoản KCS (PIN: 1234) để ký!' };
+        }
+      } else if (roleKey === 'phu_trach_kcs') {
+        // Cấp 3: BẮT BUỘC chỉ tài khoản Phụ trách KTCN (VD-003 - Vũ Văn Bảy)
+        if (user.username !== 'tp_ktcn' && user.ma_nv !== 'VD-003') {
+          return { allowed: false, reason: 'Cấp 3 thuộc thẩm quyền của Trưởng Phòng KTCN (VD-003 - Vũ Văn Bảy). Vui lòng đăng nhập tài khoản TP.KTCN (PIN: 3333) để ký!' };
+        }
+      } else if (roleKey === 'bo_phan_su_dung') {
+        // Cấp 4: BẮT BUỘC chỉ tài khoản Quản Đốc PX (VD-002 - Lê Văn Quản Đốc)
+        if (user.username !== 'quanly' && user.ma_nv !== 'VD-002') {
+          return { allowed: false, reason: 'Cấp 4 thuộc thẩm quyền của Quản Đốc Phân Xưởng (VD-002 - Lê Văn Quản Đốc). Vui lòng đăng nhập tài khoản Quản Đốc (PIN: 4444) để ký!' };
+        }
+      } else if (roleKey === 'lanh_dao_duyet') {
+        // Cấp 5: BẮT BUỘC chỉ tài khoản Ban Giám Đốc (VD-001 - Admin)
+        if (user.role !== 'ADMIN' && user.ma_nv !== 'VD-001') {
+          return { allowed: false, reason: 'Cấp 5 thuộc thẩm quyền của Ban Giám Đốc (VD-001 - Nguyễn Ngọc Sơn). Vui lòng đăng nhập tài khoản Admin (PIN: 0179) để phê duyệt!' };
+        }
       }
-      return { allowed: true };
     }
-    if (roleKey === 'phu_trach_kcs') {
-      if (!chuKy.nguoi_kiem_tra?.da_ky) {
-        return { allowed: false, reason: 'Cấp 2: Người kiểm tra (KCS Nghiệm thu) chưa ký kết quả! Bắt buộc KCS phải kiểm tra và ký trước.' };
-      }
-      return { allowed: true };
-    }
-    if (roleKey === 'bo_phan_su_dung') {
-      if (!chuKy.phu_trach_kcs?.da_ky) {
-        return { allowed: false, reason: 'Cấp 3: Phụ trách KTCN (Trưởng phòng KTCN) chưa ký duyệt! Không được ký vượt cấp.' };
-      }
-      return { allowed: true };
-    }
-    if (roleKey === 'lanh_dao_duyet') {
-      if (!chuKy.bo_phan_su_dung?.da_ky) {
-        return { allowed: false, reason: 'Cấp 4: Bộ phận sử dụng (Quản Đốc Phân Xưởng) chưa ký tiếp nhận! Không được duyệt vượt cấp.' };
-      }
-      return { allowed: true };
-    }
-    return { allowed: false, reason: 'Quyền hạn không hợp lệ' };
+
+    return { allowed: true };
   };
 
   // Mở modal ký
   const handleOpenSignModal = (roleKey: RoleKeyType) => {
     const check = checkCanSign(roleKey);
     if (!check.allowed) {
-      alert(`⚠️ QUY TRÌNH DUYỆT TUẦN TỰ:\n${check.reason}`);
+      alert(`⛔ CẢNH BÁO PHÂN QUYỀN KÝ DUYỆT:\n\n${check.reason}`);
       return;
     }
 
@@ -391,15 +408,21 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
     setSignError('');
     setPinInput('');
 
-    // Khởi tạo tên mặc định
+    // Khởi tạo tên và chức danh chính xác theo cấp được quy định
     if (roleKey === 'nguoi_giao_hang') {
-      setCustomSignerName(chuKy.nguoi_giao_hang?.ten || (nhaCungCap ? `Đại diện ${nhaCungCap}` : 'Đại diện NCC'));
-    } else {
-      setCustomSignerName(user?.full_name ? `${user.full_name} (${user.chuc_danh || user.role})` : '');
+      setCustomSignerName(user?.full_name ? `${user.full_name} (P.KHTH)` : 'Trần Văn Kho (P.KHTH / Thủ Kho)');
+    } else if (roleKey === 'nguoi_kiem_tra') {
+      setCustomSignerName('Nguyễn Ngọc Thiệu (KCS Nghiệm Thu)');
+    } else if (roleKey === 'phu_trach_kcs') {
+      setCustomSignerName('Vũ Văn Bảy (Trưởng Phòng KTCN)');
+    } else if (roleKey === 'bo_phan_su_dung') {
+      setCustomSignerName('Lê Văn Quản Đốc (Quản Đốc Phân Xưởng)');
+    } else if (roleKey === 'lanh_dao_duyet') {
+      setCustomSignerName(user?.full_name ? `${user.full_name} (Ban Giám Đốc)` : 'Nguyễn Ngọc Sơn (Ban Giám Đốc)');
     }
   };
 
-  // Thực hiện ký sau khi xác thực
+  // Thực hiện ký sau khi xác thực đúng mã PIN của cấp đó
   const handleConfirmSign = () => {
     if (!signingRole) return;
     setSignError('');
@@ -407,67 +430,59 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
     const allUsers = getStoredUsers();
     let signerName = customSignerName.trim();
 
-    // 1. Cấp 1: Người giao hàng
+    if (!pinInput) {
+      setSignError('Vui lòng nhập mã PIN bảo mật cá nhân (4 số) của tài khoản này!');
+      return;
+    }
+
+    // 1. CẤP 1: P.KHTH / Thủ Kho -> Yêu cầu đúng PIN 2222 hoặc PIN của tài khoản KHO/Admin
     if (signingRole === 'nguoi_giao_hang') {
-      if (!signerName) {
-        setSignError('Vui lòng nhập họ tên người giao hàng / đại diện NCC!');
+      const userKHO = allUsers.find(u => (u.role === 'KHO' || u.ma_nv === 'VD-005') && u.pin_code === pinInput);
+      if (!userKHO && pinInput !== '2222' && (user?.role !== 'ADMIN' || pinInput !== '0179')) {
+        setSignError('Mã PIN không đúng cho tài khoản P.KHTH / Thủ Kho (PIN: 2222)!');
         return;
       }
-    } 
-    // 2. Các Cấp 2, 3, 4, 5 cần xác thực PIN của người ký hoặc tài khoản đang đăng nhập
-    else {
-      if (!pinInput) {
-        setSignError('Vui lòng nhập mã PIN bảo mật cá nhân (4 số)!');
+      if (!signerName) signerName = 'Trần Văn Kho (P.KHTH / Thủ Kho)';
+    }
+
+    // 2. CẤP 2: KCS Nghiệm Thu -> Yêu cầu đúng PIN KCS (1234)
+    else if (signingRole === 'nguoi_kiem_tra') {
+      const userKCS = allUsers.find(u => (u.role === 'KCS' || u.ma_nv === 'VD-004') && u.pin_code === pinInput);
+      if (!userKCS && pinInput !== '1234') {
+        setSignError('⛔ SAI MÃ PIN! Cấp 2 bắt buộc mã PIN của KCS Nghiệm Thu (PIN: 1234)!');
         return;
       }
+      if (!signerName) signerName = 'Nguyễn Ngọc Thiệu (KCS Nghiệm Thu)';
+    }
 
-      // Xác thực PIN: khớp mã PIN của user hiện tại, hoặc PIN của bất kỳ user nào có role phù hợp, hoặc Master PIN 0179
-      let matchedUser = allUsers.find(u => u.pin_code === pinInput && u.is_active !== false);
-      const isMasterPin = (pinInput === '0179');
-
-      if (!matchedUser && !isMasterPin) {
-        setSignError('Mã PIN không chính xác! Vui lòng kiểm tra lại.');
+    // 3. CẤP 3: Phụ Trách KTCN -> Yêu cầu đúng PIN TP.KTCN (3333)
+    else if (signingRole === 'phu_trach_kcs') {
+      const userKTCN = allUsers.find(u => (u.username === 'tp_ktcn' || u.ma_nv === 'VD-003') && u.pin_code === pinInput);
+      if (!userKTCN && pinInput !== '3333') {
+        setSignError('⛔ SAI MÃ PIN! Cấp 3 bắt buộc mã PIN của Trưởng Phòng KTCN (PIN: 3333)!');
         return;
       }
+      if (!signerName) signerName = 'Vũ Văn Bảy (Trưởng Phòng KTCN)';
+    }
 
-      // Kiểm tra thẩm quyền cấp duyệt
-      if (signingRole === 'nguoi_kiem_tra') {
-        // Cấp 2: KCS hoặc Admin
-        if (!isMasterPin && matchedUser && matchedUser.role !== 'KCS' && matchedUser.role !== 'ADMIN') {
-          setSignError(`Tài khoản "${matchedUser.full_name}" không có quyền KCS nghiệm thu!`);
-          return;
-        }
-        if (!signerName) {
-          signerName = matchedUser ? `${matchedUser.full_name} (KCS)` : (user?.full_name ? `${user.full_name} (KCS)` : 'KCS Nghiệm Thu');
-        }
-      } else if (signingRole === 'phu_trach_kcs') {
-        // Cấp 3: Phụ trách KTCN / TP KTCN / Admin
-        if (!isMasterPin && matchedUser && matchedUser.role !== 'MANAGEMENT' && matchedUser.role !== 'ADMIN') {
-          setSignError(`Tài khoản "${matchedUser.full_name}" không có quyền Phụ trách KTCN!`);
-          return;
-        }
-        if (!signerName) {
-          signerName = matchedUser ? `${matchedUser.full_name} (TP KTCN)` : 'Vũ Văn Bảy (Trưởng Phòng KTCN)';
-        }
-      } else if (signingRole === 'bo_phan_su_dung') {
-        // Cấp 4: Quản đốc PX / Quản lý / Admin
-        if (!isMasterPin && matchedUser && matchedUser.role !== 'MANAGEMENT' && matchedUser.role !== 'ADMIN') {
-          setSignError(`Tài khoản "${matchedUser.full_name}" không có quyền Quản Đốc Phân Xưởng!`);
-          return;
-        }
-        if (!signerName) {
-          signerName = matchedUser ? `${matchedUser.full_name} (Quản Đốc PX)` : 'Lê Văn Quản Đốc (Quản Đốc PX)';
-        }
-      } else if (signingRole === 'lanh_dao_duyet') {
-        // Cấp 5: Ban Giám Đốc / Admin
-        if (!isMasterPin && matchedUser && matchedUser.role !== 'ADMIN') {
-          setSignError(`Chỉ có Ban Giám Đốc (ADMIN) mới có quyền Phê duyệt cấp 5!`);
-          return;
-        }
-        if (!signerName) {
-          signerName = matchedUser ? `${matchedUser.full_name} (Ban Giám Đốc)` : 'Nguyễn Văn Viện (Ban Giám Đốc)';
-        }
+    // 4. CẤP 4: Quản Đốc Phân Xưởng -> Yêu cầu đúng PIN Quản Đốc (4444)
+    else if (signingRole === 'bo_phan_su_dung') {
+      const userQD = allUsers.find(u => (u.username === 'quanly' || u.ma_nv === 'VD-002') && u.pin_code === pinInput);
+      if (!userQD && pinInput !== '4444') {
+        setSignError('⛔ SAI MÃ PIN! Cấp 4 bắt buộc mã PIN của Quản Đốc Phân Xưởng (PIN: 4444)!');
+        return;
       }
+      if (!signerName) signerName = 'Lê Văn Quản Đốc (Quản Đốc Phân Xưởng)';
+    }
+
+    // 5. CẤP 5: Ban Giám Đốc Phê Duyệt -> Yêu cầu đúng PIN Ban Giám Đốc / Admin (0179)
+    else if (signingRole === 'lanh_dao_duyet') {
+      const userBGD = allUsers.find(u => (u.role === 'ADMIN' || u.ma_nv === 'VD-001') && u.pin_code === pinInput);
+      if (!userBGD && pinInput !== '0179') {
+        setSignError('⛔ SAI MÃ PIN! Cấp 5 bắt buộc mã PIN của Ban Giám Đốc (PIN: 0179)!');
+        return;
+      }
+      if (!signerName) signerName = (user?.full_name ? `${user.full_name} (Ban Giám Đốc)` : 'Nguyễn Ngọc Sơn (Ban Giám Đốc)');
     }
 
     const now = new Date();
