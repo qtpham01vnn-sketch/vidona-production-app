@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
+import { MobileNav } from './components/layout/MobileNav';
 import { LoginPage } from './pages/LoginPage';
 import { TrangChu } from './pages/TrangChu';
 import { NhapKhoBM0307Page } from './pages/NhapKhoBM0307Page';
@@ -43,8 +44,8 @@ const MainApp: React.FC = () => {
   };
 
   return (
-    <div className="app-container">
-      {/* Sidebar Desktop & Mobile Slide-out */}
+    <div className="min-h-screen flex flex-col lg:flex-row bg-slate-50 dark:bg-[#0b1329] text-slate-900 dark:text-slate-100">
+      {/* Sidebar Desktop & Mobile Drawer */}
       <Sidebar
         currentPage={currentPage}
         onSelectPage={setCurrentPage}
@@ -53,14 +54,21 @@ const MainApp: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <div className="main-content">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
         <Header
           onToggleMobileMenu={() => setIsMobileOpen(!isMobileOpen)}
           onSelectPage={setCurrentPage}
         />
-        <main className="flex-1 overflow-y-auto pb-16 md:pb-6">
+        <main className="flex-1 overflow-y-auto pb-20 lg:pb-8 p-3 sm:p-5 md:p-6">
           {renderContent()}
         </main>
+        
+        {/* Mobile Bottom Navigation */}
+        <MobileNav
+          currentPage={currentPage}
+          onSelectPage={setCurrentPage}
+          onOpenMenu={() => setIsMobileOpen(true)}
+        />
       </div>
     </div>
   );

@@ -148,10 +148,10 @@ export const KhoNVLPage: React.FC = () => {
 
       {/* FILTER & TABS */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
-        <div className="flex flex-wrap gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none p-1 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs">
           <button
             onClick={() => setActiveGroup('ALL')}
-            className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+            className={`px-3 py-1.5 rounded-lg font-bold whitespace-nowrap transition-all ${
               activeGroup === 'ALL'
                 ? 'bg-sky-600 text-white shadow-sm'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -161,7 +161,7 @@ export const KhoNVLPage: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveGroup('BAO_BI')}
-            className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1 ${
+            className={`px-3 py-1.5 rounded-lg font-bold whitespace-nowrap transition-all flex items-center gap-1 ${
               activeGroup === 'BAO_BI'
                 ? 'bg-indigo-600 text-white shadow-sm'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -171,7 +171,7 @@ export const KhoNVLPage: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveGroup('XUONG')}
-            className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1 ${
+            className={`px-3 py-1.5 rounded-lg font-bold whitespace-nowrap transition-all flex items-center gap-1 ${
               activeGroup === 'XUONG'
                 ? 'bg-amber-600 text-white shadow-sm'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -181,7 +181,7 @@ export const KhoNVLPage: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveGroup('MEN')}
-            className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1 ${
+            className={`px-3 py-1.5 rounded-lg font-bold whitespace-nowrap transition-all flex items-center gap-1 ${
               activeGroup === 'MEN'
                 ? 'bg-emerald-600 text-white shadow-sm'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -191,7 +191,7 @@ export const KhoNVLPage: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveGroup('NHIEN_LIEU')}
-            className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1 ${
+            className={`px-3 py-1.5 rounded-lg font-bold whitespace-nowrap transition-all flex items-center gap-1 ${
               activeGroup === 'NHIEN_LIEU'
                 ? 'bg-rose-600 text-white shadow-sm'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'

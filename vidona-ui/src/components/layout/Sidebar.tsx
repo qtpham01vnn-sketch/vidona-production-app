@@ -31,7 +31,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onSelectPage, isM
   const [isInstalled, setIsInstalled] = useState<boolean>(false);
 
   useEffect(() => {
-    // Kiểm tra xem app đã cài PWA chưa
     if (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true) {
       setIsInstalled(true);
     }
@@ -39,7 +38,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onSelectPage, isM
     const handleBeforeInstall = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      console.log('PWA beforeinstallprompt captured!');
     };
 
     const handleAppInstalled = () => {
@@ -65,7 +63,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onSelectPage, isM
         setIsInstalled(true);
       }
     } else {
-      // Hiện bảng hướng dẫn cài đặt nhanh cho cả máy tính & điện thoại
       setShowPwaGuide(true);
     }
   };
@@ -94,16 +91,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onSelectPage, isM
       {/* Backdrop for mobile */}
       {isMobileOpen && (
         <div 
-          className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm"
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm transition-opacity"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
 
       <aside className={`
-        fixed md:sticky top-0 left-0 h-screen z-50 md:z-30 w-72 
-        flex flex-col border-r transition-transform duration-300 ease-in-out
-        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-        ${theme === 'dark' ? 'bg-[#0b1329]/95 text-slate-100 border-slate-800' : 'bg-white text-slate-900 border-slate-200 shadow-md'}
+        fixed lg:sticky top-0 left-0 h-screen z-50 lg:z-30 w-72 max-w-[85vw]
+        flex flex-col border-r transition-transform duration-300 ease-in-out shadow-xl lg:shadow-none
+        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        ${theme === 'dark' ? 'bg-[#0b1329]/95 text-slate-100 border-slate-800' : 'bg-white text-slate-900 border-slate-200'}
       `}>
         {/* Brand Header */}
         <div className="p-4 border-b border-inherit flex items-center justify-between">
@@ -119,13 +116,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onSelectPage, isM
               <p className="text-[11px] text-slate-500 dark:text-slate-400">Công Ty Cổ Phần Gạch Men Vidona</p>
             </div>
           </div>
+
+          {/* Close button on mobile */}
+          <button
+            onClick={() => setIsMobileOpen(false)}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 lg:hidden"
+          >
+            <X size={20} />
+          </button>
         </div>
 
         {/* User Card */}
         {user && (
           <div className="p-3 m-3 mb-2 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 flex flex-col gap-2">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
                 <UserCheck size={18} />
               </div>
               <div className="min-w-0 flex-1">
@@ -153,11 +158,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onSelectPage, isM
             className="w-full py-2 px-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 flex items-center justify-center gap-2 shadow-md hover:shadow-emerald-500/20 transition-all border border-emerald-400/30"
           >
             <Smartphone size={15} />
-            <span>{isInstalled ? '✓ Đã Cài Đặt Ứng Dụng (PWA)' : '📱 Cài Đặt Ứng Dụng (PWA)'}</span>
+            <span>{isInstalled ? '✓ Đã Cài Đặt Ứng Dụng' : '📱 Cài Đặt Ứng Dụng (PWA)'}</span>
           </button>
         </div>
 
-        {/* Menu Navigation Items (Chuyên Biệt Hóa Cho Vidona) */}
+        {/* Menu Navigation Items */}
         <nav className="flex-1 overflow-y-auto px-3 py-1 space-y-2">
           
           {/* Module 1: ĐIỀU HÀNH & TỔNG QUAN */}
@@ -175,7 +180,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onSelectPage, isM
               <div className="mt-1 ml-3 pl-2 border-l border-blue-500/20 space-y-1">
                 <button
                   onClick={() => handleNav('trang-chu')}
-                  className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                     currentPage === 'trang-chu' 
                       ? 'bg-sky-500/20 text-sky-700 dark:text-sky-400 font-bold border-l-2 border-sky-500' 
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
@@ -185,7 +190,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onSelectPage, isM
                 </button>
                 <button
                   onClick={() => handleNav('san-luong')}
-                  className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                     currentPage === 'san-luong' 
                       ? 'bg-sky-500/20 text-sky-700 dark:text-sky-400 font-bold border-l-2 border-sky-500' 
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
@@ -212,7 +217,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onSelectPage, isM
               <div className="mt-1 ml-3 pl-2 border-l border-emerald-500/30 space-y-1">
                 <button
                   onClick={() => handleNav('bm0307')}
-                  className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-between ${
+                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-between ${
                     currentPage === 'bm0307' 
                       ? 'bg-sky-500/20 text-sky-700 dark:text-sky-400 border-l-2 border-sky-500 font-extrabold' 
                       : 'text-slate-700 dark:text-slate-300 hover:text-sky-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40'
@@ -223,7 +228,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onSelectPage, isM
                 </button>
                 <button
                   onClick={() => handleNav('kho')}
-                  className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                     currentPage === 'kho' 
                       ? 'bg-sky-500/20 text-sky-700 dark:text-sky-400 font-bold border-l-2 border-sky-500' 
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
@@ -250,7 +255,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onSelectPage, isM
               <div className="mt-1 ml-3 pl-2 border-l border-purple-500/20 space-y-1">
                 <button
                   onClick={() => handleNav('tccs')}
-                  className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center justify-between ${
+                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-between ${
                     currentPage === 'tccs' 
                       ? 'bg-sky-500/20 text-sky-700 dark:text-sky-400 font-bold border-l-2 border-sky-500' 
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
@@ -278,7 +283,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onSelectPage, isM
               <div className="mt-1 ml-3 pl-2 border-l border-sky-500/20 space-y-1">
                 <button
                   onClick={() => handleNav('ai')}
-                  className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                     currentPage === 'ai' 
                       ? 'bg-sky-500/20 text-sky-700 dark:text-sky-400 font-bold border-l-2 border-sky-500' 
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
@@ -290,7 +295,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onSelectPage, isM
             )}
           </div>
 
-          {/* Module 5: QUẢN LÝ NHÂN SỰ & TÀI KHOẢN (CHỈ DUY NHẤT ADMIN MỚI THẤY VÀ TRUY CẬP) */}
+          {/* Module 5: QUẢN LÝ NHÂN SỰ & TÀI KHOẢN (CHỈ DUY NHẤT ADMIN) */}
           {user?.role === 'ADMIN' && (
             <div className="rounded-lg overflow-hidden">
               <button 
@@ -306,7 +311,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onSelectPage, isM
                 <div className="mt-1 ml-3 pl-2 border-l border-indigo-500/20 space-y-1">
                   <button
                     onClick={() => handleNav('tai-khoan')}
-                    className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center justify-between ${
+                    className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-between ${
                       currentPage === 'tai-khoan' 
                         ? 'bg-sky-500/20 text-sky-700 dark:text-sky-400 font-bold border-l-2 border-sky-500' 
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
@@ -328,7 +333,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onSelectPage, isM
         </div>
       </aside>
 
-      {/* MODAL HƯỚNG DẪN CÀI ĐẶT PWA CHO MỌI THIẾT BỊ */}
+      {/* MODAL HƯỚNG DẪN CÀI ĐẶT PWA */}
       {showPwaGuide && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md text-slate-100 shadow-2xl relative">
@@ -345,7 +350,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onSelectPage, isM
 
             <h3 className="font-extrabold text-lg text-white mb-2">Cài Đặt Ứng Dụng Vidona PXSX</h3>
             <p className="text-xs text-slate-300 mb-4">
-              Cài đặt ứng dụng trực tiếp lên màn hình máy tính hoặc điện thoại để mở nhanh không cần gõ link và chạy mượt mà ngay cả khi mất mạng:
+              Cài đặt ứng dụng trực tiếp lên màn hình điện thoại hoặc máy tính để mở nhanh không cần gõ link:
             </p>
 
             <div className="space-y-3 text-xs bg-slate-800/60 p-3.5 rounded-xl border border-slate-700/60">
@@ -359,7 +364,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onSelectPage, isM
               </div>
               <div className="flex gap-2.5">
                 <span className="font-bold text-amber-400 shrink-0">🍏 iPhone (Safari):</span>
-                <span>Bấm nút <b>Chia sẻ</b> (biểu tượng mũi tên hướng lên ở dưới cùng) ➔ Chọn <b>"Thêm vào MH chính" (Add to Home Screen)</b>.</span>
+                <span>Bấm nút <b>Chia sẻ</b> (mũi tên hướng lên ở dưới cùng) ➔ Chọn <b>"Thêm vào MH chính" (Add to Home Screen)</b>.</span>
               </div>
             </div>
 
