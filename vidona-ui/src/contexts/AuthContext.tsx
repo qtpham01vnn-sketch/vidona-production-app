@@ -79,20 +79,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('vidona_user_current');
   };
 
-  const isAdmin = user?.role === 'ADMIN';
-  const isManagement = user?.role === 'MANAGEMENT' || isAdmin;
-  const isKCS = user?.role === 'KCS' || isManagement;
-  const isKho = user?.role === 'KHO' || isManagement;
+  const isAdmin = user?.role === 'ADMIN' || user?.ma_nv === 'VD-001';
+  const isManagement = user?.role === 'MANAGEMENT' && !isAdmin;
+  const isKCS = user?.role === 'KCS';
+  const isKho = user?.role === 'KHO' || user?.ma_nv === 'VD-005';
   const isWorker = user?.role === 'WORKER';
 
-  // Specific Granular Permissions (Phân Quyền Chi Tiết)
+  // Specific Granular Permissions CHUẨN XÁC THEO QUY TRÌNH NHÀ MÁY:
+  // 1. Chỉ DUY NHẤT ADMIN được quản lý tài khoản & cấp PIN & xóa tài khoản
   const canManageUsers = isAdmin;
+
+  // 2. Chỉ DUY NHẤT P.KHTH / THỦ KHO (VD-005) hoặc ADMIN được bấm "+ Lập Phiếu BM.03.07 Mới"
+  // Quản Đốc PX (VD-002), TP.KTCN (VD-003), KCS (VD-004), Công Nhân (VD-006) KHÔNG ĐƯỢC LẬP PHIẾU MỚI
+  const canCreateBM0307 = isKho || isAdmin;
+
   const canEditTCCS = isAdmin;
   const canApproveStep5 = isAdmin;
-  const canApproveStep4 = isManagement;
-  const canApproveStep3 = isManagement;
-  const canCreateBM0307 = isKCS || isKho || isAdmin;
-  const canEditBM0307 = isKCS || isManagement || isAdmin;
+  const canApproveStep4 = user?.username === 'quanly' || user?.ma_nv === 'VD-002';
+  const canApproveStep3 = user?.username === 'tp_ktcn' || user?.ma_nv === 'VD-003';
+  const canEditBM0307 = isKho || isKCS || isAdmin;
 
   return (
     <AuthContext.Provider value={{

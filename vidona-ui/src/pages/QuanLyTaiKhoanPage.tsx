@@ -173,6 +173,24 @@ export const QuanLyTaiKhoanPage: React.FC = () => {
     }
   };
 
+    // KIỂM TRA BẢO MẬT: CHỈ ADMIN MỚI ĐƯỢC PHÉP TRUY CẬP TRANG NÀY
+  if (currentUser?.role !== 'ADMIN' && currentUser?.ma_nv !== 'VD-001') {
+    return (
+      <div className="p-6 max-w-xl mx-auto my-16 text-center glass-panel rounded-3xl space-y-4 border border-rose-500/30">
+        <div className="w-16 h-16 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center mx-auto shadow-lg">
+          <Lock size={32} />
+        </div>
+        <h2 className="text-lg font-black text-rose-600 dark:text-rose-400 uppercase tracking-wide">
+          ⛔ KHÔNG CÓ QUYỀN TRUY CẬP
+        </h2>
+        <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          Khu vực <strong>Quản Trị & Phân Quyền Nhân Sự</strong> chỉ dành riêng cho tài khoản <strong>Admin Ban Giám Đốc (VD-001)</strong>. 
+          Các tài khoản Quản đốc, KCS, Thủ kho, Công nhân tuyệt đối không có quyền xem hoặc chỉnh sửa dữ liệu tài khoản.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto">
       
