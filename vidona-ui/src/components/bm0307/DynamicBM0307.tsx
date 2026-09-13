@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { 
   CheckCircle2, XCircle, ShieldCheck, Printer, Save, X, Plus, 
-  Trash2, AlertTriangle, Lock
+  Trash2, AlertTriangle, Lock, UserCheck, Clock, ShieldAlert, KeyRound
 } from 'lucide-react';
 import { BM0307Record, BM0307ChiTieuResult, TCCSBang } from '../../types';
 import { getStoredTCCS } from '../../services/tccsData';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { getStoredUsers } from '../../services/userService';
 
 // Helper chuyển số thành chữ tiếng Việt chuẩn xác
 function docSoThanhChuVN(so: number): string {
@@ -78,6 +79,8 @@ interface DynamicBM0307Props {
   onClose: () => void;
 }
 
+type RoleKeyType = 'nguoi_giao_hang' | 'nguoi_kiem_tra' | 'phu_trach_kcs' | 'bo_phan_su_dung' | 'lanh_dao_duyet';
+
 export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSave, onClose }) => {
   const { user } = useAuth();
   const { theme } = useTheme();
@@ -113,17 +116,28 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
   const [ketLuanKcs, setKetLuanKcs] = useState<'DAT' | 'KHONG_DAT' | 'HA_CAP_TRU_TIEN'>(initialData?.ket_luan || 'DAT');
   const [bienPhapXuLy, setBienPhapXuLy] = useState(initialData?.ghi_chu_xu_ly || 'Nan gỗ tràm thẳng, đinh đóng 2 đinh/điểm chắc chắn, đủ tiêu chuẩn nhập kho.');
 
-  // Ký duyệt 5 cấp
+  // KHỞI TẠO CHỮ KÝ 5 CẤP:
+  // Nếu là phiếu mới (initialData == null) -> BẮT BUỘC toàn bộ da_ky: false, không ký sẵn!
   const [chuKy, setChuKy] = useState({
-    nguoi_giao_hang: initialData?.chu_ky?.nguoi_giao_hang || { da_ky: true, ten: 'Trần Ngọc Triển', ngay: '08:15 12/09/2026' },
-    nguoi_kiem_tra: initialData?.chu_ky?.nguoi_kiem_tra || { da_ky: true, ten: 'Nguyễn Ngọc Thiện', ngay: '08:30 12/09/2026' },
-    phu_trach_kcs: initialData?.chu_ky?.phu_trach_kcs || { da_ky: true, ten: 'Vũ Văn Bảy', ngay: '08:45 12/09/2026' },
-    bo_phan_su_dung: initialData?.chu_ky?.bo_phan_su_dung || { da_ky: true, ten: 'Lê Văn Quản Đốc', ngay: '09:00 12/09/2026' },
-    lanh_dao_duyet: initialData?.chu_ky?.lanh_dao_duyet || { da_ky: true, ten: 'Nguyễn Văn Viện', ngay: '09:15 12/09/2026' }
+    nguoi_giao_hang: initialData?.chu_ky?.nguoi_giao_hang || { da_ky: false, ten: '', ngay: '' },
+    nguoi_kiem_tra: initialData?.chu_ky?.nguoi_kiem_tra || { da_ky: false, ten: '', ngay: '' },
+    phu_trach_kcs: initialData?.chu_ky?.phu_trach_kcs || { da_ky: false, ten: '', ngay: '' },
+    bo_phan_su_dung: initialData?.chu_ky?.bo_phan_su_dung || { da_ky: false, ten: '', ngay: '' },
+    lanh_dao_duyet: initialData?.chu_ky?.lanh_dao_duyet || { da_ky: false, ten: '', ngay: '' }
   });
 
+  // State Modal Ký
+  const [signingRole, setSigningRole] = useState<RoleKeyType | null>(null);
   const [pinInput, setPinInput] = useState('');
-  const [signingRole, setSigningRole] = useState<string | null>(null);
+  const [customSignerName, setCustomSignerName] = useState('');
+  const [signError, setSignError] = useState('');
+
+  // TRẠNG THÁI KHÓA FORM TỪNG CẤP ĐỂ BẢO MẬT DỮ LIỆU
+  const isLockedStep1 = Boolean(chuKy.nguoi_giao_hang?.da_ky);
+  const isLockedStep2 = Boolean(chuKy.nguoi_kiem_tra?.da_ky);
+  const isLockedStep3 = Boolean(chuKy.phu_trach_kcs?.da_ky);
+  const isLockedStep4 = Boolean(chuKy.bo_phan_su_dung?.da_ky);
+  const isLockedFinal = Boolean(chuKy.lanh_dao_duyet?.da_ky);
 
   useEffect(() => {
     const list = getStoredTCCS();
@@ -149,6 +163,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
 
   // Xử lý khi chọn bảng TCCS mới
   const handleSelectTCCS = (maTCCS: string) => {
+    if (isLockedStep2 || isLockedFinal) return;
     setSelectedMaTCCS(maTCCS);
     const tccs = tccsList.find(t => t.ma_tccs === maTCCS);
     setSelectedTCCS(tccs);
@@ -170,6 +185,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
   };
 
   const handleUpdateKetQua = (idx: number, val: string) => {
+    if (isLockedStep2 || isLockedFinal) return;
     const list = [...chiTieuList];
     list[idx].ket_qua_kcs = val;
     list[idx].danh_gia = 'DAT';
@@ -177,6 +193,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
   };
 
   const handleAddChiTieu = () => {
+    if (isLockedStep2 || isLockedFinal) return;
     setChiTieuList([
       ...chiTieuList,
       {
@@ -190,36 +207,148 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
   };
 
   const handleRemoveChiTieu = (idx: number) => {
+    if (isLockedStep2 || isLockedFinal) return;
     setChiTieuList(chiTieuList.filter((_, i) => i !== idx));
   };
 
-  const handleSignPIN = (roleKey: 'phu_trach_kcs' | 'bo_phan_su_dung' | 'lanh_dao_duyet') => {
-    if (!pinInput) return;
-    let valid = false;
-    let signerName = user?.full_name || 'Người Ký';
+  // KIỂM TRA ĐIỀU KIỆN TUẦN TỰ 5 CẤP (KHÔNG ĐƯỢC VƯỢT CẤP)
+  const checkCanSign = (roleKey: RoleKeyType): { allowed: boolean; reason?: string } => {
+    if (roleKey === 'nguoi_giao_hang') {
+      return { allowed: true };
+    }
+    if (roleKey === 'nguoi_kiem_tra') {
+      if (!chuKy.nguoi_giao_hang?.da_ky) {
+        return { allowed: false, reason: 'Cấp 1: Người giao hàng (NCC/Kho) chưa ký bàn giao! Bắt buộc Người giao hàng phải ký trước.' };
+      }
+      return { allowed: true };
+    }
+    if (roleKey === 'phu_trach_kcs') {
+      if (!chuKy.nguoi_kiem_tra?.da_ky) {
+        return { allowed: false, reason: 'Cấp 2: Người kiểm tra (KCS Nghiệm thu) chưa ký kết quả! Bắt buộc KCS phải kiểm tra và ký trước.' };
+      }
+      return { allowed: true };
+    }
+    if (roleKey === 'bo_phan_su_dung') {
+      if (!chuKy.phu_trach_kcs?.da_ky) {
+        return { allowed: false, reason: 'Cấp 3: Phụ trách KTCN (Trưởng phòng KTCN) chưa ký duyệt! Không được ký vượt cấp.' };
+      }
+      return { allowed: true };
+    }
+    if (roleKey === 'lanh_dao_duyet') {
+      if (!chuKy.bo_phan_su_dung?.da_ky) {
+        return { allowed: false, reason: 'Cấp 4: Bộ phận sử dụng (Quản Đốc Phân Xưởng) chưa ký tiếp nhận! Không được duyệt vượt cấp.' };
+      }
+      return { allowed: true };
+    }
+    return { allowed: false, reason: 'Quyền hạn không hợp lệ' };
+  };
 
-    if (roleKey === 'phu_trach_kcs' && (pinInput === '3333' || pinInput === '0179')) {
-      valid = true;
-      signerName = 'Vũ Văn Bảy (TP KTCN)';
-    } else if (roleKey === 'bo_phan_su_dung' && (pinInput === '4444' || pinInput === '0179')) {
-      valid = true;
-      signerName = 'Lê Văn Quản Đốc (Quản Đốc PX)';
-    } else if (roleKey === 'lanh_dao_duyet' && (pinInput === '0179')) {
-      valid = true;
-      signerName = 'Nguyễn Văn Viện (Ban Giám Đốc)';
+  // Mở modal ký
+  const handleOpenSignModal = (roleKey: RoleKeyType) => {
+    const check = checkCanSign(roleKey);
+    if (!check.allowed) {
+      alert(`⚠️ QUY TRÌNH DUYỆT TUẦN TỰ:\n${check.reason}`);
+      return;
     }
 
-    if (valid) {
-      const nowStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('vi-VN');
-      setChuKy(prev => ({
-        ...prev,
-        [roleKey]: { da_ky: true, ten: signerName, ngay: nowStr }
-      }));
-      setSigningRole(null);
-      setPinInput('');
+    setSigningRole(roleKey);
+    setSignError('');
+    setPinInput('');
+
+    // Khởi tạo tên mặc định
+    if (roleKey === 'nguoi_giao_hang') {
+      setCustomSignerName(chuKy.nguoi_giao_hang?.ten || (nhaCungCap ? `Đại diện ${nhaCungCap}` : 'Đại diện NCC'));
     } else {
-      alert('Mã PIN không đúng cho quyền hạn này!');
+      setCustomSignerName(user?.full_name ? `${user.full_name} (${user.chuc_danh || user.role})` : '');
     }
+  };
+
+  // Thực hiện ký sau khi xác thực
+  const handleConfirmSign = () => {
+    if (!signingRole) return;
+    setSignError('');
+
+    const allUsers = getStoredUsers();
+    let signerName = customSignerName.trim();
+
+    // 1. Cấp 1: Người giao hàng
+    if (signingRole === 'nguoi_giao_hang') {
+      if (!signerName) {
+        setSignError('Vui lòng nhập họ tên người giao hàng / đại diện NCC!');
+        return;
+      }
+    } 
+    // 2. Các Cấp 2, 3, 4, 5 cần xác thực PIN của người ký hoặc tài khoản đang đăng nhập
+    else {
+      if (!pinInput) {
+        setSignError('Vui lòng nhập mã PIN bảo mật cá nhân (4 số)!');
+        return;
+      }
+
+      // Xác thực PIN: khớp mã PIN của user hiện tại, hoặc PIN của bất kỳ user nào có role phù hợp, hoặc Master PIN 0179
+      let matchedUser = allUsers.find(u => u.pin_code === pinInput && u.is_active !== false);
+      const isMasterPin = (pinInput === '0179');
+
+      if (!matchedUser && !isMasterPin) {
+        setSignError('Mã PIN không chính xác! Vui lòng kiểm tra lại.');
+        return;
+      }
+
+      // Kiểm tra thẩm quyền cấp duyệt
+      if (signingRole === 'nguoi_kiem_tra') {
+        // Cấp 2: KCS hoặc Admin
+        if (!isMasterPin && matchedUser && matchedUser.role !== 'KCS' && matchedUser.role !== 'ADMIN') {
+          setSignError(`Tài khoản "${matchedUser.full_name}" không có quyền KCS nghiệm thu!`);
+          return;
+        }
+        if (!signerName) {
+          signerName = matchedUser ? `${matchedUser.full_name} (KCS)` : (user?.full_name ? `${user.full_name} (KCS)` : 'KCS Nghiệm Thu');
+        }
+      } else if (signingRole === 'phu_trach_kcs') {
+        // Cấp 3: Phụ trách KTCN / TP KTCN / Admin
+        if (!isMasterPin && matchedUser && matchedUser.role !== 'MANAGEMENT' && matchedUser.role !== 'ADMIN') {
+          setSignError(`Tài khoản "${matchedUser.full_name}" không có quyền Phụ trách KTCN!`);
+          return;
+        }
+        if (!signerName) {
+          signerName = matchedUser ? `${matchedUser.full_name} (TP KTCN)` : 'Vũ Văn Bảy (Trưởng Phòng KTCN)';
+        }
+      } else if (signingRole === 'bo_phan_su_dung') {
+        // Cấp 4: Quản đốc PX / Quản lý / Admin
+        if (!isMasterPin && matchedUser && matchedUser.role !== 'MANAGEMENT' && matchedUser.role !== 'ADMIN') {
+          setSignError(`Tài khoản "${matchedUser.full_name}" không có quyền Quản Đốc Phân Xưởng!`);
+          return;
+        }
+        if (!signerName) {
+          signerName = matchedUser ? `${matchedUser.full_name} (Quản Đốc PX)` : 'Lê Văn Quản Đốc (Quản Đốc PX)';
+        }
+      } else if (signingRole === 'lanh_dao_duyet') {
+        // Cấp 5: Ban Giám Đốc / Admin
+        if (!isMasterPin && matchedUser && matchedUser.role !== 'ADMIN') {
+          setSignError(`Chỉ có Ban Giám Đốc (ADMIN) mới có quyền Phê duyệt cấp 5!`);
+          return;
+        }
+        if (!signerName) {
+          signerName = matchedUser ? `${matchedUser.full_name} (Ban Giám Đốc)` : 'Nguyễn Văn Viện (Ban Giám Đốc)';
+        }
+      }
+    }
+
+    const now = new Date();
+    const nowStr = `${now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} ${now.toLocaleDateString('vi-VN')}`;
+
+    setChuKy(prev => ({
+      ...prev,
+      [signingRole]: {
+        da_ky: true,
+        ten: signerName,
+        ngay: nowStr
+      }
+    }));
+
+    setSigningRole(null);
+    setPinInput('');
+    setCustomSignerName('');
   };
 
   const handleSaveForm = () => {
@@ -261,8 +390,9 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
             <span className="text-xs font-bold text-sky-600 dark:text-sky-400">Chọn Bảng TCCS:</span>
             <select
               value={selectedMaTCCS}
+              disabled={isLockedStep2 || isLockedFinal}
               onChange={(e) => handleSelectTCCS(e.target.value)}
-              className="text-xs font-bold py-1 px-2 rounded border"
+              className="text-xs font-bold py-1 px-2 rounded border bg-white dark:bg-slate-800 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {tccsList.map(t => (
                 <option key={t.ma_tccs} value={t.ma_tccs}>
@@ -273,11 +403,16 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
           </div>
 
           <div className="flex items-center gap-2">
+            {isLockedFinal && (
+              <span className="px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                <ShieldCheck size={14} /> ĐÃ KHÓA HOÀN TOÀN 5 CẤP
+              </span>
+            )}
             <button
               onClick={() => window.print()}
               className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-white flex items-center gap-1.5 shadow"
             >
-              <Printer size={14} /> In / PDF (Chuẩn 1 Trang A4)
+              <Printer size={14} /> In / PDF (A4 Chuẩn)
             </button>
             <button
               onClick={handleSaveForm}
@@ -294,8 +429,15 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
           </div>
         </div>
 
+        {/* CẢNH BÁO BẢO MẬT & KHÓA DỮ LIỆU */}
+        {isLockedStep2 && !isLockedFinal && (
+          <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 text-xs text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-2 no-print">
+            <Lock size={14} />
+            <span>KCS đã ký xác nhận kiểm tra. Các thông số chỉ tiêu kỹ thuật (2.1 & 2.2) đã được <strong>khóa an toàn</strong>, không thể sửa đổi để đảm bảo tính pháp lý.</span>
+          </div>
+        )}
+
         {/* TỜ PHIẾU BM.03.07 CHUẨN A4 ĐỘC QUYỀN IN */}
-        {/* TỜ PHIẾU BM.03.07 CHUẨN A4 ĐỘC QUYỀN IN (TỰ ĐỘNG CO GIÃN HÀI HÒA THEO SỐ LƯỢNG CHỈ TIÊU) */}
         <div 
           id="print-bm0307-a4" 
           className={`p-4 sm:p-6 md:p-8 bg-white text-slate-900 dark:bg-[#0f172a] dark:text-slate-100 flex flex-col justify-between ${
@@ -333,7 +475,10 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
 
           {/* PHẦN I: THÔNG TIN CHUNG (General informations) */}
           <div className="space-y-0.5">
-            <div className="font-bold text-[11px] text-sky-600 dark:text-sky-400">I. Thông tin chung (General informations)</div>
+            <div className="font-bold text-[11px] text-sky-600 dark:text-sky-400 flex items-center justify-between">
+              <span>I. Thông tin chung (General informations)</span>
+              {isLockedFinal && <span className="text-[9.5px] text-slate-400 italic font-normal">🔒 Đã khóa bảo mật</span>}
+            </div>
             
             <div className="border border-inherit rounded-lg overflow-hidden">
               <table className="table-custom text-[11px]">
@@ -346,6 +491,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                           <input 
                             type="radio" 
                             name="loaiHangHoa" 
+                            disabled={isLockedFinal}
                             checked={loaiHangHoa === 'NHAP_KHO'} 
                             onChange={() => setLoaiHangHoa('NHAP_KHO')} 
                           />
@@ -355,6 +501,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                           <input 
                             type="radio" 
                             name="loaiHangHoa" 
+                            disabled={isLockedFinal}
                             checked={loaiHangHoa === 'MAU_THU'} 
                             onChange={() => setLoaiHangHoa('MAU_THU')} 
                           />
@@ -364,6 +511,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                           <input 
                             type="radio" 
                             name="loaiHangHoa" 
+                            disabled={isLockedFinal}
                             checked={loaiHangHoa === 'LOAI_KHAC'} 
                             onChange={() => setLoaiHangHoa('LOAI_KHAC')} 
                           />
@@ -378,8 +526,9 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                       <input 
                         type="text" 
                         value={nhaCungCap} 
+                        disabled={isLockedFinal}
                         onChange={(e) => setNhaCungCap(e.target.value)} 
-                        className="w-full font-bold"
+                        className="w-full font-bold disabled:bg-transparent"
                         placeholder="Nhập tên nhà cung cấp..."
                       />
                     </td>
@@ -390,8 +539,9 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                       <input 
                         type="text" 
                         value={soHopDong} 
+                        disabled={isLockedFinal}
                         onChange={(e) => setSoHopDong(e.target.value)} 
-                        className="w-full font-medium"
+                        className="w-full font-medium disabled:bg-transparent"
                         placeholder="Số HĐ / Đơn đặt hàng..."
                       />
                     </td>
@@ -399,21 +549,26 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                   <tr>
                     <td className="font-semibold text-slate-500 dark:text-slate-400 py-0.5 px-2">Ngày lấy mẫu / Nhập kho & Biển số xe</td>
                     <td className="py-0.5 px-2">
-                      <div className="flex gap-4">
-                        <input 
-                          type="date" 
-                          value={ngayNhap} 
-                          onChange={(e) => setNgayNhap(e.target.value)} 
-                          className="font-medium"
-                        />
-                        <div className="flex items-center gap-2 flex-1">
-                          <span className="text-slate-500 dark:text-slate-400">Số xe/Biển số:</span>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex items-center gap-1">
+                          <span className="text-slate-500 text-[10px]">Ngày:</span>
+                          <input 
+                            type="date" 
+                            value={ngayNhap} 
+                            disabled={isLockedFinal}
+                            onChange={(e) => setNgayNhap(e.target.value)} 
+                            className="font-medium disabled:bg-transparent"
+                          />
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="text-slate-500 text-[10px]">Xe:</span>
                           <input 
                             type="text" 
                             value={soXe} 
+                            disabled={isLockedFinal}
                             onChange={(e) => setSoXe(e.target.value)} 
-                            className="flex-1 font-bold"
-                            placeholder="VD: 60C-889.92"
+                            className="font-medium disabled:bg-transparent"
+                            placeholder="Biển số xe..."
                           />
                         </div>
                       </div>
@@ -424,68 +579,64 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
             </div>
           </div>
 
-          {/* PHẦN II: KẾT QUẢ KIỂM TRA (Test results) */}
-          <div className="space-y-1.5">
-            <div className="font-bold text-[11px] text-sky-600 dark:text-sky-400">II. Kết quả kiểm tra (Test results)</div>
+          {/* PHẦN II: NỘI DUNG KIỂM TRA (Checking contents) */}
+          <div className="space-y-1">
+            <div className="font-bold text-[11px] text-sky-600 dark:text-sky-400 flex items-center justify-between">
+              <span>II. Nội dung kiểm tra (Checking contents)</span>
+              {isLockedStep2 && <span className="text-[9.5px] text-emerald-600 dark:text-emerald-400 font-semibold">🔒 Đã khóa theo biên bản KCS</span>}
+            </div>
 
-            {/* II.1: Ngoại quan */}
+            {/* 2.1 Ngoại quan */}
             <div className="space-y-0.5">
-              <div className="text-[10px] font-bold text-slate-700 dark:text-slate-300">2.1. Kiểm tra ngoại quan (General checking)</div>
+              <div className="text-[10.5px] font-bold text-sky-600 dark:text-sky-400">2.1. Ngoại quan (Appearance)</div>
               <div className="border border-inherit rounded-lg overflow-hidden">
                 <table className="table-custom text-[11px]">
-                  <thead>
-                    <tr>
-                      <th className="w-8 text-center py-0.5 px-1">TT</th>
-                      <th className="w-1/3 py-0.5 px-2">Nội Dung Kiểm Tra</th>
-                      <th className="py-0.5 px-2">Kết Quả Thực Tế Đạt Được</th>
-                    </tr>
-                  </thead>
                   <tbody>
                     <tr>
-                      <td className="text-center font-bold py-0.5">1</td>
-                      <td className="font-semibold text-slate-600 dark:text-slate-400 py-0.5 px-2">Nhãn mác (Label checking)</td>
+                      <td className="w-1/3 font-semibold text-slate-500 dark:text-slate-400 py-0.5 px-2">Nhãn mác (Labels)</td>
                       <td className="py-0.5 px-2">
                         <input 
                           type="text" 
                           value={ngoaiQuan.nhan_mac} 
+                          disabled={isLockedStep2 || isLockedFinal}
                           onChange={(e) => setNgoaiQuan({ ...ngoaiQuan, nhan_mac: e.target.value })} 
-                          className="w-full"
+                          className="w-full disabled:bg-transparent" 
                         />
                       </td>
                     </tr>
                     <tr>
-                      <td className="text-center font-bold py-0.5">2</td>
-                      <td className="font-semibold text-slate-600 dark:text-slate-400 py-0.5 px-2">Tình trạng bao gói (Package checking)</td>
+                      <td className="font-semibold text-slate-500 dark:text-slate-400 py-0.5 px-2">Tình trạng bao gói (Packing status)</td>
                       <td className="py-0.5 px-2">
                         <input 
                           type="text" 
                           value={ngoaiQuan.tinh_trang_bao_goi} 
+                          disabled={isLockedStep2 || isLockedFinal}
                           onChange={(e) => setNgoaiQuan({ ...ngoaiQuan, tinh_trang_bao_goi: e.target.value })} 
-                          className="w-full"
+                          className="w-full disabled:bg-transparent" 
                         />
                       </td>
                     </tr>
                     <tr>
-                      <td className="text-center font-bold py-0.5">3</td>
-                      <td className="font-semibold text-slate-600 dark:text-slate-400 py-0.5 px-2">Màu sắc (Color checking by sight)</td>
+                      <td className="font-semibold text-slate-500 dark:text-slate-400 py-0.5 px-2">Màu sắc (Color)</td>
                       <td className="py-0.5 px-2">
                         <input 
                           type="text" 
                           value={ngoaiQuan.mau_sac} 
+                          disabled={isLockedStep2 || isLockedFinal}
                           onChange={(e) => setNgoaiQuan({ ...ngoaiQuan, mau_sac: e.target.value })} 
-                          className="w-full"
+                          className="w-full disabled:bg-transparent" 
                         />
                       </td>
                     </tr>
                     <tr>
-                      <td className="text-center font-bold py-0.5">4</td>
-                      <td className="font-semibold text-slate-600 dark:text-slate-400 py-0.5 px-2">Thông tin khác (Other informations)</td>
+                      <td className="font-semibold text-slate-500 dark:text-slate-400 py-0.5 px-2">Thông tin khác (Other information)</td>
                       <td className="py-0.5 px-2">
                         <input 
                           type="text" 
                           value={ngoaiQuan.thong_tin_khac} 
+                          disabled={isLockedStep2 || isLockedFinal}
                           onChange={(e) => setNgoaiQuan({ ...ngoaiQuan, thong_tin_khac: e.target.value })} 
-                          className="w-full"
+                          className="w-full disabled:bg-transparent" 
                         />
                       </td>
                     </tr>
@@ -494,22 +645,24 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
               </div>
             </div>
 
-            {/* II.2: Bảng thông số kỹ thuật động theo TCCS */}
+            {/* 2.2 Thông số kỹ thuật */}
             <div className="space-y-0.5">
-              <div className="flex items-center justify-between">
+              <div className="flex justify-between items-center">
                 <div className="text-[10.5px] font-bold text-sky-600 dark:text-sky-400 flex items-center gap-1.5">
                   <span>2.2. Kiểm tra các thông số, đặc tính kỹ thuật (Technical parameter checking)</span>
                   <span className="text-[9.5px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-500 font-bold border border-sky-500/30">
                     Theo {selectedTCCS?.ten_tccs || 'TCCS'}
                   </span>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleAddChiTieu}
-                  className="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-600 dark:text-sky-400 hover:bg-sky-500/30 flex items-center gap-1 border border-sky-500/30 no-print"
-                >
-                  <Plus size={11} /> Thêm chỉ tiêu
-                </button>
+                {!isLockedStep2 && !isLockedFinal && (
+                  <button
+                    type="button"
+                    onClick={handleAddChiTieu}
+                    className="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-600 dark:text-sky-400 hover:bg-sky-500/30 flex items-center gap-1 border border-sky-500/30 no-print"
+                  >
+                    <Plus size={11} /> Thêm chỉ tiêu
+                  </button>
+                )}
               </div>
 
               {/* General Material info */}
@@ -519,8 +672,9 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                   <input 
                     type="text" 
                     value={tenHangHoa} 
+                    disabled={isLockedStep2 || isLockedFinal}
                     onChange={(e) => setTenHangHoa(e.target.value)} 
-                    className="w-full font-bold text-sky-600 dark:text-sky-400" 
+                    className="w-full font-bold text-sky-600 dark:text-sky-400 disabled:bg-transparent" 
                   />
                 </div>
                 <div>
@@ -528,8 +682,9 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                   <input 
                     type="text" 
                     value={donVi} 
+                    disabled={isLockedStep2 || isLockedFinal}
                     onChange={(e) => setDonVi(e.target.value)} 
-                    className="w-full font-medium" 
+                    className="w-full font-medium disabled:bg-transparent" 
                   />
                 </div>
                 <div>
@@ -537,8 +692,9 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                   <input 
                     type="number" 
                     value={soLuongNhap} 
+                    disabled={isLockedStep2 || isLockedFinal}
                     onChange={(e) => setSoLuongNhap(Number(e.target.value))} 
-                    className="w-full font-bold text-emerald-600 dark:text-emerald-400" 
+                    className="w-full font-bold text-emerald-600 dark:text-emerald-400 disabled:bg-transparent" 
                   />
                 </div>
               </div>
@@ -553,7 +709,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                       <th className="w-1/4 py-0.5 px-2">Tiêu Chuẩn Chấp Nhận (TCCS)</th>
                       <th className="w-1/5 py-0.5 px-2">Kết Quả (KCS Đo)</th>
                       <th className="w-14 text-center py-0.5 px-1">Đánh Giá</th>
-                      <th className="w-7 text-center py-0.5 px-1 no-print">Xóa</th>
+                      {!isLockedStep2 && !isLockedFinal && <th className="w-7 text-center py-0.5 px-1 no-print">Xóa</th>}
                     </tr>
                   </thead>
                   <tbody>
@@ -564,12 +720,13 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                           <input 
                             type="text" 
                             value={item.ten_chi_tieu} 
+                            disabled={isLockedStep2 || isLockedFinal}
                             onChange={(e) => {
                               const list = [...chiTieuList];
                               list[idx].ten_chi_tieu = e.target.value;
                               setChiTieuList(list);
                             }} 
-                            className="w-full font-semibold"
+                            className="w-full font-semibold disabled:bg-transparent"
                             placeholder="Tên chỉ tiêu..."
                           />
                         </td>
@@ -577,12 +734,13 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                           <input 
                             type="text" 
                             value={item.tieu_chuan} 
+                            disabled={isLockedStep2 || isLockedFinal}
                             onChange={(e) => {
                               const list = [...chiTieuList];
                               list[idx].tieu_chuan = e.target.value;
                               setChiTieuList(list);
                             }} 
-                            className="w-full font-mono text-sky-600 dark:text-sky-400"
+                            className="w-full font-mono text-sky-600 dark:text-sky-400 disabled:bg-transparent"
                             placeholder="Quy chuẩn..."
                           />
                         </td>
@@ -590,8 +748,9 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                           <input 
                             type="text" 
                             value={item.ket_qua_kcs} 
+                            disabled={isLockedStep2 || isLockedFinal}
                             onChange={(e) => handleUpdateKetQua(idx, e.target.value)} 
-                            className="w-full font-bold text-emerald-600 dark:text-emerald-400"
+                            className="w-full font-bold text-emerald-600 dark:text-emerald-400 disabled:bg-transparent"
                             placeholder="Số đo thực tế..."
                           />
                         </td>
@@ -604,15 +763,17 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                             {item.danh_gia === 'DAT' ? 'Đạt' : 'K.Đạt'}
                           </span>
                         </td>
-                        <td className="text-center py-0.5 no-print">
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveChiTieu(idx)}
-                            className="text-rose-500 hover:text-rose-400 p-0.5"
-                          >
-                            <Trash2 size={11} />
-                          </button>
-                        </td>
+                        {!isLockedStep2 && !isLockedFinal && (
+                          <td className="text-center py-0.5 no-print">
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveChiTieu(idx)}
+                              className="text-rose-500 hover:text-rose-400 p-0.5"
+                            >
+                              <Trash2 size={11} />
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>
@@ -630,6 +791,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                 <input 
                   type="radio" 
                   name="ketLuanKcs" 
+                  disabled={isLockedStep2 || isLockedFinal}
                   checked={ketLuanKcs === 'DAT'} 
                   onChange={() => setKetLuanKcs('DAT')} 
                 />
@@ -642,6 +804,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                 <input 
                   type="radio" 
                   name="ketLuanKcs" 
+                  disabled={isLockedStep2 || isLockedFinal}
                   checked={ketLuanKcs === 'KHONG_DAT'} 
                   onChange={() => setKetLuanKcs('KHONG_DAT')} 
                 />
@@ -654,6 +817,7 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                 <input 
                   type="radio" 
                   name="ketLuanKcs" 
+                  disabled={isLockedStep2 || isLockedFinal}
                   checked={ketLuanKcs === 'HA_CAP_TRU_TIEN'} 
                   onChange={() => setKetLuanKcs('HA_CAP_TRU_TIEN')} 
                 />
@@ -678,100 +842,216 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
               </label>
               <textarea
                 value={bienPhapXuLy}
+                disabled={isLockedStep3 || isLockedFinal}
                 onChange={(e) => setBienPhapXuLy(e.target.value)}
                 rows={1}
-                className="w-full text-[11px] font-medium"
+                className="w-full text-[11px] font-medium disabled:bg-transparent"
                 placeholder="Ghi nhận xét và kết luận..."
               />
             </div>
           </div>
 
-          {/* CHỮ KÝ 5 CẤP BẢO MẬT */}
+          {/* CHỮ KÝ 5 CẤP TUẦN TỰ THEO CHUẨN ISO BM.03.07 */}
           <div className="pt-1.5 border-t border-inherit space-y-1">
-            <div className="text-center text-[9.5px] text-slate-400 italic">
-              Ngày {new Date(ngayNhap).getDate()} tháng {new Date(ngayNhap).getMonth() + 1} năm {new Date(ngayNhap).getFullYear()}
+            <div className="flex justify-between items-center text-[9.5px] text-slate-400 italic">
+              <div>* Quy trình duyệt 5 cấp ký điện tử tuần tự (Không được vượt cấp)</div>
+              <div>Ngày {new Date(ngayNhap).getDate()} tháng {new Date(ngayNhap).getMonth() + 1} năm {new Date(ngayNhap).getFullYear()}</div>
             </div>
 
             <div className="grid grid-cols-5 gap-1.5 text-center text-[10px]">
               
-              {/* 1. Phê duyệt */}
-              <div className="p-1.5 rounded-lg border border-inherit bg-slate-100 dark:bg-slate-800/40 flex flex-col justify-between min-h-[95px]">
-                <div className="font-bold text-slate-800 dark:text-slate-200 leading-tight">Phê duyệt<br/><span className="text-[8.5px] font-normal text-slate-500">(Ban Giám Đốc)</span></div>
+              {/* CẤP 5: Phê duyệt (Ban Giám Đốc) */}
+              <div className={`p-1.5 rounded-lg border border-inherit flex flex-col justify-between min-h-[105px] transition-all ${
+                chuKy.lanh_dao_duyet?.da_ky 
+                  ? 'bg-emerald-500/10 border-emerald-500/30' 
+                  : (chuKy.bo_phan_su_dung?.da_ky ? 'bg-sky-500/10 border-sky-500/30 shadow-sm' : 'bg-slate-100 dark:bg-slate-800/40 opacity-70')
+              }`}>
+                <div className="font-bold text-slate-800 dark:text-slate-200 leading-tight">
+                  Phê duyệt<br/>
+                  <span className="text-[8.5px] font-normal text-slate-500 dark:text-slate-400">(Cấp 5: Ban Giám Đốc)</span>
+                </div>
+                
                 {chuKy.lanh_dao_duyet?.da_ky ? (
-                  <div className="my-0.5 p-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold print-stamp text-[9.5px]">
-                    ✓ ĐÃ DUYỆT
+                  <div className="my-0.5 p-1 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold print-stamp text-[9.5px] flex flex-col items-center">
+                    <span>✓ ĐÃ PHÊ DUYỆT</span>
+                    <span className="text-[8px] font-normal opacity-80">{chuKy.lanh_dao_duyet.ngay}</span>
                   </div>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => setSigningRole('lanh_dao_duyet')}
-                    className="my-0.5 py-0.5 px-1 rounded bg-sky-500/20 text-sky-600 dark:text-sky-400 font-bold text-[9.5px] no-print"
-                  >
-                    🔒 Ký (PIN 0179)
-                  </button>
+                  <div className="my-0.5 no-print">
+                    {chuKy.bo_phan_su_dung?.da_ky ? (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenSignModal('lanh_dao_duyet')}
+                        className="w-full py-1 px-1 rounded-md bg-sky-600 hover:bg-sky-500 text-white font-bold text-[9.5px] shadow-sm flex items-center justify-center gap-1"
+                      >
+                        ✍️ Ký Phê Duyệt
+                      </button>
+                    ) : (
+                      <span className="text-[8.5px] text-slate-400 italic flex items-center justify-center gap-0.5 py-1">
+                        <Clock size={10} /> Chờ Cấp 4 ký
+                      </span>
+                    )}
+                  </div>
                 )}
-                <div className="font-semibold text-slate-700 dark:text-slate-300 text-[9.5px]">{chuKy.lanh_dao_duyet?.ten || 'Nguyễn Văn Viện'}</div>
+
+                <div className="font-semibold text-slate-700 dark:text-slate-300 text-[9.5px]">
+                  {chuKy.lanh_dao_duyet?.ten || (chuKy.lanh_dao_duyet?.da_ky ? 'Ban Giám Đốc' : '(Chưa ký)')}
+                </div>
               </div>
 
-              {/* 2. Bộ phận sử dụng */}
-              <div className="p-1.5 rounded-lg border border-inherit bg-slate-100 dark:bg-slate-800/40 flex flex-col justify-between min-h-[95px]">
-                <div className="font-bold text-slate-800 dark:text-slate-200 leading-tight">Bộ phận sử dụng<br/><span className="text-[8.5px] font-normal text-slate-500">(Quản Đốc PX)</span></div>
+              {/* CẤP 4: Bộ phận sử dụng (Quản Đốc PX) */}
+              <div className={`p-1.5 rounded-lg border border-inherit flex flex-col justify-between min-h-[105px] transition-all ${
+                chuKy.bo_phan_su_dung?.da_ky 
+                  ? 'bg-emerald-500/10 border-emerald-500/30' 
+                  : (chuKy.phu_trach_kcs?.da_ky ? 'bg-sky-500/10 border-sky-500/30 shadow-sm' : 'bg-slate-100 dark:bg-slate-800/40 opacity-70')
+              }`}>
+                <div className="font-bold text-slate-800 dark:text-slate-200 leading-tight">
+                  Bộ phận sử dụng<br/>
+                  <span className="text-[8.5px] font-normal text-slate-500 dark:text-slate-400">(Cấp 4: Quản Đốc PX)</span>
+                </div>
+
                 {chuKy.bo_phan_su_dung?.da_ky ? (
-                  <div className="my-0.5 p-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold print-stamp text-[9.5px]">
-                    ✓ ĐÃ DUYỆT
+                  <div className="my-0.5 p-1 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold print-stamp text-[9.5px] flex flex-col items-center">
+                    <span>✓ ĐÃ TIẾP NHẬN</span>
+                    <span className="text-[8px] font-normal opacity-80">{chuKy.bo_phan_su_dung.ngay}</span>
                   </div>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => setSigningRole('bo_phan_su_dung')}
-                    className="my-0.5 py-0.5 px-1 rounded bg-sky-500/20 text-sky-600 dark:text-sky-400 font-bold text-[9.5px] no-print"
-                  >
-                    🔒 Ký (PIN 4444)
-                  </button>
+                  <div className="my-0.5 no-print">
+                    {chuKy.phu_trach_kcs?.da_ky ? (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenSignModal('bo_phan_su_dung')}
+                        className="w-full py-1 px-1 rounded-md bg-sky-600 hover:bg-sky-500 text-white font-bold text-[9.5px] shadow-sm flex items-center justify-center gap-1"
+                      >
+                        ✍️ Ký Tiếp Nhận
+                      </button>
+                    ) : (
+                      <span className="text-[8.5px] text-slate-400 italic flex items-center justify-center gap-0.5 py-1">
+                        <Clock size={10} /> Chờ Cấp 3 ký
+                      </span>
+                    )}
+                  </div>
                 )}
-                <div className="font-semibold text-slate-700 dark:text-slate-300 text-[9.5px]">{chuKy.bo_phan_su_dung?.ten || 'Lê Văn Quản Đốc'}</div>
+
+                <div className="font-semibold text-slate-700 dark:text-slate-300 text-[9.5px]">
+                  {chuKy.bo_phan_su_dung?.ten || (chuKy.bo_phan_su_dung?.da_ky ? 'Quản Đốc PX' : '(Chưa ký)')}
+                </div>
               </div>
 
-              {/* 3. Phụ trách KTCN */}
-              <div className="p-1.5 rounded-lg border border-inherit bg-slate-100 dark:bg-slate-800/40 flex flex-col justify-between min-h-[95px]">
-                <div className="font-bold text-slate-800 dark:text-slate-200 leading-tight">Phụ trách KTCN<br/><span className="text-[8.5px] font-normal text-slate-500">(Trưởng Phòng KTCN)</span></div>
+              {/* CẤP 3: Phụ trách KTCN (Trưởng phòng KTCN / Tổ trưởng KCS) */}
+              <div className={`p-1.5 rounded-lg border border-inherit flex flex-col justify-between min-h-[105px] transition-all ${
+                chuKy.phu_trach_kcs?.da_ky 
+                  ? 'bg-emerald-500/10 border-emerald-500/30' 
+                  : (chuKy.nguoi_kiem_tra?.da_ky ? 'bg-sky-500/10 border-sky-500/30 shadow-sm' : 'bg-slate-100 dark:bg-slate-800/40 opacity-70')
+              }`}>
+                <div className="font-bold text-slate-800 dark:text-slate-200 leading-tight">
+                  Phụ trách KTCN<br/>
+                  <span className="text-[8.5px] font-normal text-slate-500 dark:text-slate-400">(Cấp 3: Trưởng Phòng KTCN)</span>
+                </div>
+
                 {chuKy.phu_trach_kcs?.da_ky ? (
-                  <div className="my-0.5 p-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold print-stamp text-[9.5px]">
-                    ✓ ĐÃ DUYỆT
+                  <div className="my-0.5 p-1 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold print-stamp text-[9.5px] flex flex-col items-center">
+                    <span>✓ ĐÃ DUYỆT KTCN</span>
+                    <span className="text-[8px] font-normal opacity-80">{chuKy.phu_trach_kcs.ngay}</span>
                   </div>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => setSigningRole('phu_trach_kcs')}
-                    className="my-0.5 py-0.5 px-1 rounded bg-sky-500/20 text-sky-600 dark:text-sky-400 font-bold text-[9.5px] no-print"
-                  >
-                    🔒 Ký (PIN 3333)
-                  </button>
+                  <div className="my-0.5 no-print">
+                    {chuKy.nguoi_kiem_tra?.da_ky ? (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenSignModal('phu_trach_kcs')}
+                        className="w-full py-1 px-1 rounded-md bg-sky-600 hover:bg-sky-500 text-white font-bold text-[9.5px] shadow-sm flex items-center justify-center gap-1"
+                      >
+                        ✍️ Ký Duyệt KTCN
+                      </button>
+                    ) : (
+                      <span className="text-[8.5px] text-slate-400 italic flex items-center justify-center gap-0.5 py-1">
+                        <Clock size={10} /> Chờ Cấp 2 ký
+                      </span>
+                    )}
+                  </div>
                 )}
-                <div className="font-semibold text-slate-700 dark:text-slate-300 text-[9.5px]">{chuKy.phu_trach_kcs?.ten || 'Vũ Văn Bảy'}</div>
+
+                <div className="font-semibold text-slate-700 dark:text-slate-300 text-[9.5px]">
+                  {chuKy.phu_trach_kcs?.ten || (chuKy.phu_trach_kcs?.da_ky ? 'P.KTCN' : '(Chưa ký)')}
+                </div>
               </div>
 
-              {/* 4. Người kiểm tra */}
-              <div className="p-1.5 rounded-lg border border-inherit bg-slate-100 dark:bg-slate-800/40 flex flex-col justify-between min-h-[95px]">
-                <div className="font-bold text-slate-800 dark:text-slate-200 leading-tight">Người kiểm tra<br/><span className="text-[8.5px] font-normal text-slate-500">(KCS Nghiệm Thu)</span></div>
-                <div className="my-0.5 p-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold print-stamp text-[9.5px]">
-                  ✓ ĐÃ KIỂM TRA
+              {/* CẤP 2: Người kiểm tra (KCS Nghiệm Thu) */}
+              <div className={`p-1.5 rounded-lg border border-inherit flex flex-col justify-between min-h-[105px] transition-all ${
+                chuKy.nguoi_kiem_tra?.da_ky 
+                  ? 'bg-emerald-500/10 border-emerald-500/30' 
+                  : (chuKy.nguoi_giao_hang?.da_ky ? 'bg-sky-500/10 border-sky-500/30 shadow-sm' : 'bg-slate-100 dark:bg-slate-800/40 opacity-70')
+              }`}>
+                <div className="font-bold text-slate-800 dark:text-slate-200 leading-tight">
+                  Người kiểm tra<br/>
+                  <span className="text-[8.5px] font-normal text-slate-500 dark:text-slate-400">(Cấp 2: KCS Nghiệm Thu)</span>
                 </div>
-                <div className="font-semibold text-slate-700 dark:text-slate-300 text-[9.5px]">{chuKy.nguoi_kiem_tra?.ten}</div>
+
+                {chuKy.nguoi_kiem_tra?.da_ky ? (
+                  <div className="my-0.5 p-1 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold print-stamp text-[9.5px] flex flex-col items-center">
+                    <span>✓ ĐÃ KIỂM TRA</span>
+                    <span className="text-[8px] font-normal opacity-80">{chuKy.nguoi_kiem_tra.ngay}</span>
+                  </div>
+                ) : (
+                  <div className="my-0.5 no-print">
+                    {chuKy.nguoi_giao_hang?.da_ky ? (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenSignModal('nguoi_kiem_tra')}
+                        className="w-full py-1 px-1 rounded-md bg-sky-600 hover:bg-sky-500 text-white font-bold text-[9.5px] shadow-sm flex items-center justify-center gap-1"
+                      >
+                        ✍️ Ký KCS Xác Nhận
+                      </button>
+                    ) : (
+                      <span className="text-[8.5px] text-slate-400 italic flex items-center justify-center gap-0.5 py-1">
+                        <Clock size={10} /> Chờ Cấp 1 ký
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                <div className="font-semibold text-slate-700 dark:text-slate-300 text-[9.5px]">
+                  {chuKy.nguoi_kiem_tra?.ten || (chuKy.nguoi_kiem_tra?.da_ky ? 'KCS' : '(Chưa ký)')}
+                </div>
               </div>
 
-              {/* 5. Người giao hàng */}
-              <div className="p-1.5 rounded-lg border border-inherit bg-slate-100 dark:bg-slate-800/40 flex flex-col justify-between min-h-[95px]">
-                <div className="font-bold text-slate-800 dark:text-slate-200 leading-tight">Người giao hàng<br/><span className="text-[8.5px] font-normal text-slate-500">(Đại Diện NCC)</span></div>
-                <div className="my-0.5 p-0.5 rounded bg-slate-200 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 font-bold print-stamp text-[9.5px]">
-                  ✓ ĐÃ BÀN GIAO
+              {/* CẤP 1: Người giao hàng (Đại Diện NCC / Tiếp nhận) */}
+              <div className={`p-1.5 rounded-lg border border-inherit flex flex-col justify-between min-h-[105px] transition-all ${
+                chuKy.nguoi_giao_hang?.da_ky 
+                  ? 'bg-emerald-500/10 border-emerald-500/30' 
+                  : 'bg-sky-500/10 border-sky-500/30 shadow-sm'
+              }`}>
+                <div className="font-bold text-slate-800 dark:text-slate-200 leading-tight">
+                  Người giao hàng<br/>
+                  <span className="text-[8.5px] font-normal text-slate-500 dark:text-slate-400">(Cấp 1: Đại Diện NCC)</span>
                 </div>
-                <div className="font-semibold text-slate-700 dark:text-slate-300 text-[9.5px]">{chuKy.nguoi_giao_hang?.ten}</div>
+
+                {chuKy.nguoi_giao_hang?.da_ky ? (
+                  <div className="my-0.5 p-1 rounded bg-slate-200 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 font-bold print-stamp text-[9.5px] flex flex-col items-center">
+                    <span>✓ ĐÃ BÀN GIAO</span>
+                    <span className="text-[8px] font-normal opacity-80">{chuKy.nguoi_giao_hang.ngay}</span>
+                  </div>
+                ) : (
+                  <div className="my-0.5 no-print">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenSignModal('nguoi_giao_hang')}
+                      className="w-full py-1 px-1 rounded-md bg-amber-600 hover:bg-amber-500 text-white font-bold text-[9.5px] shadow-sm flex items-center justify-center gap-1"
+                    >
+                      ✍️ Ký Bàn Giao Hàng
+                    </button>
+                  </div>
+                )}
+
+                <div className="font-semibold text-slate-700 dark:text-slate-300 text-[9.5px]">
+                  {chuKy.nguoi_giao_hang?.ten || (chuKy.nguoi_giao_hang?.da_ky ? 'Người Giao' : '(Chưa ký)')}
+                </div>
               </div>
 
             </div>
 
-            {/* Nơi gửi (Distribution List) CHUẨN THEO ẢNH 1 BIỂU MẪU GỐC ISO BM.03.07 */}
+            {/* Nơi gửi (Distribution List) CHUẨN THEO BIỂU MẪU GỐC ISO BM.03.07 */}
             <div className="pt-1 mt-0.5 text-[7pt] leading-[1.2] text-left text-slate-800 dark:text-slate-200 font-serif">
               <div className="italic font-bold">Nơi gửi:</div>
               <div className="italic pl-0.5 space-y-0.2 text-[6.8pt]">
@@ -786,47 +1066,98 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
 
         </div>
 
-        {/* Modal nhập mã PIN để ký (ẨN KHI IN) */}
+        {/* MODAL KÝ ĐIỆN TỬ BẢO MẬT THEO CẤP (ẨN KHI IN) */}
         {signingRole && (
-          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 no-print">
-            <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-sm text-center shadow-2xl">
-              <div className="w-12 h-12 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center mx-auto mb-3">
-                <Lock size={24} />
-              </div>
-              <h3 className="font-bold text-base text-slate-100 mb-1">Xác Thực Ký Duyệt Bằng Mã PIN</h3>
-              <p className="text-xs text-slate-400 mb-4">
-                Nhập mã PIN 4 số của bạn để đóng dấu ký điện tử lên phiếu BM.03.07
-              </p>
-              <input
-                type="password"
-                maxLength={4}
-                autoFocus
-                value={pinInput}
-                onChange={(e) => setPinInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleSignPIN(signingRole as any);
-                  }
-                }}
-                className="w-full text-center text-2xl tracking-[0.5em] font-mono py-2 bg-slate-800 border border-slate-700 rounded-xl text-sky-400 font-bold mb-4 focus:border-sky-400 outline-none"
-                placeholder="••••"
-              />
-              <div className="flex gap-2">
+          <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 no-print">
+            <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md text-left shadow-2xl space-y-4">
+              
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-xl bg-sky-500/20 text-sky-400">
+                    <ShieldCheck size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm text-slate-100">
+                      {signingRole === 'nguoi_giao_hang' && 'Ký Bàn Giao Hàng (Cấp 1 - Đại Diện NCC)'}
+                      {signingRole === 'nguoi_kiem_tra' && 'Ký Xác Nhận Đo Kiểm (Cấp 2 - KCS Nghiệm Thu)'}
+                      {signingRole === 'phu_trach_kcs' && 'Ký Duyệt Kỹ Thuật (Cấp 3 - Phụ Trách KTCN)'}
+                      {signingRole === 'bo_phan_su_dung' && 'Ký Tiếp Nhận Sản Xuất (Cấp 4 - Quản Đốc PX)'}
+                      {signingRole === 'lanh_dao_duyet' && 'Phê Duyệt Nhập Kho (Cấp 5 - Ban Giám Đốc)'}
+                    </h3>
+                    <p className="text-[11px] text-slate-400">Quy trình ký điện tử chuẩn kiểm soát chất lượng ISO</p>
+                  </div>
+                </div>
                 <button
                   type="button"
-                  onClick={() => { setSigningRole(null); setPinInput(''); }}
+                  onClick={() => { setSigningRole(null); setPinInput(''); setSignError(''); }}
+                  className="p-1 rounded-lg text-slate-400 hover:text-white"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {signError && (
+                <div className="p-2.5 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-2">
+                  <ShieldAlert size={16} className="shrink-0 text-rose-400" />
+                  <span>{signError}</span>
+                </div>
+              )}
+
+              {/* Thông tin người ký */}
+              <div className="space-y-3 text-xs">
+                <div>
+                  <label className="block text-slate-400 font-semibold mb-1">
+                    Họ & Tên Người Ký:
+                  </label>
+                  <input
+                    type="text"
+                    value={customSignerName}
+                    onChange={(e) => setCustomSignerName(e.target.value)}
+                    placeholder="Nhập họ tên người ký..."
+                    className="w-full py-2 px-3 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 font-bold focus:border-sky-400 outline-none text-xs"
+                  />
+                </div>
+
+                {signingRole !== 'nguoi_giao_hang' && (
+                  <div>
+                    <label className="block text-slate-400 font-semibold mb-1 flex items-center justify-between">
+                      <span className="flex items-center gap-1"><KeyRound size={13} className="text-amber-400" /> Nhập Mã PIN Cá Nhân (4 Số):</span>
+                      <span className="text-[10px] text-slate-500">Mã PIN tài khoản đang đăng nhập</span>
+                    </label>
+                    <input
+                      type="password"
+                      maxLength={4}
+                      autoFocus
+                      value={pinInput}
+                      onChange={(e) => setPinInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleConfirmSign();
+                      }}
+                      placeholder="••••"
+                      className="w-full text-center text-xl tracking-[0.4em] font-mono py-2 bg-slate-800 border border-slate-700 rounded-xl text-sky-400 font-bold focus:border-sky-400 outline-none"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2 pt-2 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => { setSigningRole(null); setPinInput(''); setSignError(''); }}
                   className="flex-1 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 font-semibold text-xs"
                 >
                   Hủy Bỏ
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleSignPIN(signingRole as any)}
-                  className="flex-1 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs shadow-md"
+                  onClick={handleConfirmSign}
+                  className="flex-1 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-bold text-xs shadow-lg flex items-center justify-center gap-1.5"
                 >
-                  Xác Nhận Ký
+                  <ShieldCheck size={15} /> Xác Nhận Đóng Dấu Ký
                 </button>
               </div>
+
             </div>
           </div>
         )}

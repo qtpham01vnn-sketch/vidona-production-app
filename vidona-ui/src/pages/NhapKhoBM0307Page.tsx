@@ -309,13 +309,29 @@ export const NhapKhoBM0307Page: React.FC = () => {
                         )}
                       </td>
                       <td className="text-center">
-                        {isApproved5 ? (
-                          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                        {r.chu_ky?.lanh_dao_duyet?.da_ky ? (
+                          <span className="px-2 py-0.5 rounded-lg text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                             ✓ ĐÃ DUYỆT 5/5
                           </span>
+                        ) : r.chu_ky?.bo_phan_su_dung?.da_ky ? (
+                          <span className="px-2 py-0.5 rounded-lg text-[11px] font-bold bg-sky-500/15 text-sky-700 dark:text-sky-400 border border-sky-500/30">
+                            ⏳ Chờ Cấp 5 (BGĐ) (4/5)
+                          </span>
+                        ) : r.chu_ky?.phu_trach_kcs?.da_ky ? (
+                          <span className="px-2 py-0.5 rounded-lg text-[11px] font-bold bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30">
+                            ⏳ Chờ Cấp 4 (PX) (3/5)
+                          </span>
+                        ) : r.chu_ky?.nguoi_kiem_tra?.da_ky ? (
+                          <span className="px-2 py-0.5 rounded-lg text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                            ⏳ Chờ Cấp 3 (KTCN) (2/5)
+                          </span>
+                        ) : r.chu_ky?.nguoi_giao_hang?.da_ky ? (
+                          <span className="px-2 py-0.5 rounded-lg text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                            ⏳ Chờ Cấp 2 (KCS) (1/5)
+                          </span>
                         ) : (
-                          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
-                            ⏳ ĐANG DUYỆT
+                          <span className="px-2 py-0.5 rounded-lg text-[11px] font-bold bg-slate-500/15 text-slate-600 dark:text-slate-400 border border-slate-500/30">
+                            ⏳ Chờ Cấp 1 (Giao hàng)
                           </span>
                         )}
                       </td>
