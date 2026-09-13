@@ -73,6 +73,71 @@ function docSoThanhChuVN(so: number): string {
   return result.charAt(0).toUpperCase() + result.slice(1);
 }
 
+// Helper đánh giá thông minh kết quả đo KCS so với quy chuẩn TCCS
+function evalChiTieu(tieuChuanStr: string, valStr: string): 'DAT' | 'KHONG_DAT' {
+  if (!valStr || !tieuChuanStr) return 'DAT';
+  const tc = tieuChuanStr.trim();
+  const val = valStr.trim();
+
+  // 1. Pattern: A ± B (ví dụ: 60 ± 1 mm, 610 ± 1, 1100 ± 5 mm, 16 ± 1)
+  const mPm = tc.match(/([\d\.]+)\s*(?:±|\+\/-)\s*([\d\.]+)/);
+  if (mPm) {
+    const base = parseFloat(mPm[1]);
+    const tol = parseFloat(mPm[2]);
+    const minV = base - tol;
+    const maxV = base + tol;
+    const mVal = val.match(/[-+]?[\d\.]+/);
+    if (mVal) {
+      const v = parseFloat(mVal[0]);
+      if (!isNaN(v)) {
+        return (v >= minV && v <= maxV) ? 'DAT' : 'KHONG_DAT';
+      }
+    }
+  }
+
+  // 2. Pattern: <= X hoặc ≤ X (ví dụ: ≤ 25.0 %, <= 10.0, ≤ 8.0 %)
+  const mLe = tc.match(/(?:<=|≤|<)\s*([\d\.]+)/);
+  if (mLe) {
+    const maxV = parseFloat(mLe[1]);
+    const mVal = val.match(/[-+]?[\d\.]+/);
+    if (mVal) {
+      const v = parseFloat(mVal[0]);
+      if (!isNaN(v)) {
+        return v <= maxV ? 'DAT' : 'KHONG_DAT';
+      }
+    }
+  }
+
+  // 3. Pattern: >= X hoặc ≥ X (ví dụ: ≥ 170 g/cái, >= 50)
+  const mGe = tc.match(/(?:>=|≥|>)\s*([\d\.]+)/);
+  if (mGe) {
+    const minV = parseFloat(mGe[1]);
+    const mVal = val.match(/[-+]?[\d\.]+/);
+    if (mVal) {
+      const v = parseFloat(mVal[0]);
+      if (!isNaN(v)) {
+        return v >= minV ? 'DAT' : 'KHONG_DAT';
+      }
+    }
+  }
+
+  // 4. Pattern: A ÷ B hoặc A - B (ví dụ: 3.0 ÷ 8.5 %, 72 ÷ 80, 20 ÷ 30)
+  const mRange = tc.match(/([\d\.]+)\s*(?:÷|~|-|đến)\s*([\d\.]+)/);
+  if (mRange) {
+    const minV = parseFloat(mRange[1]);
+    const maxV = parseFloat(mRange[2]);
+    const mVal = val.match(/[-+]?[\d\.]+/);
+    if (mVal) {
+      const v = parseFloat(mVal[0]);
+      if (!isNaN(v)) {
+        return (v >= minV && v <= maxV) ? 'DAT' : 'KHONG_DAT';
+      }
+    }
+  }
+
+  return 'DAT';
+}
+
 interface DynamicBM0307Props {
   initialData?: BM0307Record;
   onSave: (record: BM0307Record) => void;
@@ -188,8 +253,35 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
     if (isLockedStep2 || isLockedFinal) return;
     const list = [...chiTieuList];
     list[idx].ket_qua_kcs = val;
-    list[idx].danh_gia = 'DAT';
+    
+    // Đánh giá tự động theo chuẩn TCCS
+    const autoEval = evalChiTieu(list[idx].tieu_chuan, val);
+    list[idx].danh_gia = autoEval;
     setChiTieuList(list);
+
+    // Tự động điều chỉnh kết luận tổng thể nếu có chỉ tiêu không đạt
+    const hasFail = list.some(c => c.danh_gia === 'KHONG_DAT');
+    if (hasFail) {
+      if (ketLuanKcs === 'DAT') setKetLuanKcs('KHONG_DAT');
+    } else {
+      if (ketLuanKcs === 'KHONG_DAT') setKetLuanKcs('DAT');
+    }
+  };
+
+  // Người dùng bấm trực tiếp vào nút Đánh Giá để chỉnh sửa thủ công Đạt / Không Đạt
+  const handleToggleDanhGia = (idx: number) => {
+    if (isLockedStep2 || isLockedFinal) return;
+    const list = [...chiTieuList];
+    const current = list[idx].danh_gia || 'DAT';
+    list[idx].danh_gia = current === 'DAT' ? 'KHONG_DAT' : 'DAT';
+    setChiTieuList(list);
+
+    const hasFail = list.some(c => c.danh_gia === 'KHONG_DAT');
+    if (hasFail) {
+      if (ketLuanKcs === 'DAT') setKetLuanKcs('KHONG_DAT');
+    } else {
+      if (ketLuanKcs === 'KHONG_DAT') setKetLuanKcs('DAT');
+    }
   };
 
   const handleAddChiTieu = () => {
@@ -755,13 +847,19 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                           />
                         </td>
                         <td className="text-center py-0.5">
-                          <span className={`px-1 py-0.2 rounded text-[10px] font-bold ${
-                            item.danh_gia === 'DAT' 
-                              ? 'text-emerald-600 bg-emerald-500/15 border border-emerald-500/30' 
-                              : 'text-rose-600 bg-rose-500/15 border border-rose-500/30'
-                          }`}>
-                            {item.danh_gia === 'DAT' ? 'Đạt' : 'K.Đạt'}
-                          </span>
+                          <button
+                            type="button"
+                            disabled={isLockedStep2 || isLockedFinal}
+                            onClick={() => handleToggleDanhGia(idx)}
+                            title={isLockedStep2 || isLockedFinal ? 'Đã khóa biên bản KCS' : 'Bấm để đổi nhanh Đạt / Không Đạt'}
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
+                              item.danh_gia === 'DAT' 
+                                ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/15 hover:bg-emerald-500/30 border border-emerald-500/30' 
+                                : 'text-rose-600 dark:text-rose-400 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 font-black'
+                            } disabled:opacity-75 disabled:cursor-not-allowed`}
+                          >
+                            {item.danh_gia === 'DAT' ? '🟢 Đạt' : '🔴 K.Đạt'}
+                          </button>
                         </td>
                         {!isLockedStep2 && !isLockedFinal && (
                           <td className="text-center py-0.5 no-print">
