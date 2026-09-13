@@ -168,21 +168,37 @@ export const updateKhoFromBM0307 = (record: BM0307Record) => {
   if (record.ket_luan === 'KHONG_DAT') return;
   const khoList = getKhoNVL();
   
+  const recTen = (record.ten_hang_hoa || '').trim().toLowerCase();
+  const recMa = (record.ma_tccs || '').trim().toLowerCase();
+
   let item = khoList.find(k => 
-    record.ten_hang_hoa.toLowerCase().includes(k.ten_nvl.toLowerCase()) || 
-    k.ten_nvl.toLowerCase().includes(record.ten_hang_hoa.toLowerCase())
+    k.ten_nvl.trim().toLowerCase() === recTen ||
+    (k.ma_nvl && k.ma_nvl.trim().toLowerCase() === recMa) ||
+    recTen.includes(k.ten_nvl.toLowerCase()) || 
+    k.ten_nvl.toLowerCase().includes(recTen)
   );
 
-  const doAmCt = record.ket_qua_chi_tieu.find(c => c.ten_chi_tieu.toLowerCase().includes('độ ẩm') || c.chi_tieu_id === 'do_am');
-  const doCoCt = record.ket_qua_chi_tieu.find(c => c.ten_chi_tieu.toLowerCase().includes('độ co') || c.chi_tieu_id === 'do_co');
-  const mknCt = record.ket_qua_chi_tieu.find(c => c.ten_chi_tieu.toLowerCase().includes('mkn') || c.ten_chi_tieu.toLowerCase().includes('mất sau nung') || c.chi_tieu_id === 'mkn');
+  const doAmCt = record.ket_qua_chi_tieu?.find(c => c.ten_chi_tieu.toLowerCase().includes('độ ẩm') || c.chi_tieu_id === 'do_am');
+  const doCoCt = record.ket_qua_chi_tieu?.find(c => c.ten_chi_tieu.toLowerCase().includes('độ co') || c.chi_tieu_id === 'do_co');
+  const mknCt = record.ket_qua_chi_tieu?.find(c => c.ten_chi_tieu.toLowerCase().includes('mkn') || c.ten_chi_tieu.toLowerCase().includes('mất sau nung') || c.chi_tieu_id === 'mkn');
 
   const doAmVal = doAmCt ? parseFloat(doAmCt.ket_qua_kcs) : undefined;
   const doCoVal = doCoCt ? parseFloat(doCoCt.ket_qua_kcs) : undefined;
   const mknVal = mknCt ? parseFloat(mknCt.ket_qua_kcs) : undefined;
 
+  let nhom: 'XUONG' | 'MEN' | 'NHIEN_LIEU' | 'BAO_BI' = 'BAO_BI';
+  if (record.ma_tccs?.includes('XUONG') || record.ten_hang_hoa?.toLowerCase().includes('đất sét') || record.ten_hang_hoa?.toLowerCase().includes('tràng thạch')) {
+    nhom = 'XUONG';
+  } else if (record.ma_tccs?.includes('MEN') || record.ten_hang_hoa?.toLowerCase().includes('frit') || record.ten_hang_hoa?.toLowerCase().includes('men')) {
+    nhom = 'MEN';
+  } else if (record.ma_tccs?.includes('NL') || record.ten_hang_hoa?.toLowerCase().includes('gas') || record.ten_hang_hoa?.toLowerCase().includes('than')) {
+    nhom = 'NHIEN_LIEU';
+  }
+
   if (item) {
-    item.ton_kho = (item.ton_kho || 0) + Number(record.so_luong_nhap);
+    if (item.lo_moi_nhat?.so_phieu !== record.so_phieu) {
+      item.ton_kho = (item.ton_kho || 0) + Number(record.so_luong_nhap || 0);
+    }
     item.lo_moi_nhat = {
       ngay_nhap: record.ngay_kiem_tra,
       so_phieu: record.so_phieu,
@@ -191,15 +207,17 @@ export const updateKhoFromBM0307 = (record: BM0307Record) => {
       mkn: isNaN(mknVal as any) ? undefined : mknVal,
       nha_cung_cap: record.nha_cung_cap
     };
+  } else {
+    // TỰ ĐỘNG THÊM MỚI VẬT TƯ VÀO KHO NẾU CHƯA CÓ
     khoList.push({
-      id: 'nvl-' + Date.now(),
+      id: `nvl-${Date.now()}`,
       ma_nvl: record.ma_tccs || ('VT_' + Date.now().toString().slice(-4)),
       ten_nvl: record.ten_hang_hoa,
-      nhom: 'XUONG',
-      don_vi_tinh: record.don_vi_tinh,
-      ton_kho: Number(record.so_luong_nhap),
-      ton_an_toan_min: 50,
-      ton_an_toan_max: 500,
+      nhom: nhom,
+      don_vi_tinh: record.don_vi_tinh || 'Cái',
+      ton_kho: Number(record.so_luong_nhap) || 0,
+      ton_an_toan_min: nhom === 'BAO_BI' ? 5000 : 50,
+      ton_an_toan_max: nhom === 'BAO_BI' ? 100000 : 500,
       lo_moi_nhat: {
         ngay_nhap: record.ngay_kiem_tra,
         so_phieu: record.so_phieu,
@@ -212,6 +230,16 @@ export const updateKhoFromBM0307 = (record: BM0307Record) => {
   }
 
   saveKhoNVL(khoList);
+};
+
+// Đồng bộ toàn bộ các phiếu BM.03.07 đã duyệt 5/5 vào Kho NVL
+export const syncAllApprovedBM0307ToKho = () => {
+  const bmList = getBM0307Records();
+  for (const r of bmList) {
+    if (r.trang_thai_duyet === 'DA_DUYET_5_CAP' || r.chu_ky?.lanh_dao_duyet?.da_ky) {
+      updateKhoFromBM0307(r);
+    }
+  }
 };
 
 export const saveBM0307Record = async (record: BM0307Record) => {
