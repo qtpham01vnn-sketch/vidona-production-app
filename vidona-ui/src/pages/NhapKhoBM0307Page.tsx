@@ -54,10 +54,30 @@ export const NhapKhoBM0307Page: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleSave = (savedRec: BM0307Record) => {
-    saveBM0307Record(savedRec);
-    loadData();
+  const handleSave = async (savedRec: BM0307Record) => {
+    // Cập nhật state UI ngay lập tức
+    setRecords(prev => {
+      const idx = prev.findIndex(r => r.id === savedRec.id);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = savedRec;
+        return next;
+      }
+      return [savedRec, ...prev];
+    });
+
+    // Chuyển về tab Tất cả để người dùng nhìn thấy phiếu vừa tạo ngay trên đầu
+    setActiveTab('all');
+    setFromDate('');
+    setToDate('');
+    setSupplierSearch('');
+    setMaterialSearch('');
+    setKcsStatusFilter('all');
+
     setShowModal(false);
+
+    // Lưu vào LocalStorage và đồng bộ Cloud
+    await saveBM0307Record(savedRec);
   };
 
   // Filter records

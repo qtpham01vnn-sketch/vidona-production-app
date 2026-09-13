@@ -98,12 +98,17 @@ export const DEFAULT_SAN_LUONG: SanLuongItem[] = [
 export const getBM0307Records = (): BM0307Record[] => {
   const data = localStorage.getItem('vidona_bm0307');
   if (data) {
-    try { return JSON.parse(data); } catch { return DEFAULT_BM0307_RECORDS; }
+    try {
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch {
+      return DEFAULT_BM0307_RECORDS;
+    }
   }
   return DEFAULT_BM0307_RECORDS;
 };
 
-// Đồng bộ từ Supabase về LocalStorage
+// Đồng bộ từ Supabase về LocalStorage với cơ chế Merge an toàn tuyệt đối
 export const fetchBM0307FromSupabase = async (): Promise<BM0307Record[]> => {
   try {
     const { data, error } = await supabase
@@ -116,17 +121,24 @@ export const fetchBM0307FromSupabase = async (): Promise<BM0307Record[]> => {
       return getBM0307Records();
     }
 
-    if (data && data.length > 0) {
-      localStorage.setItem('vidona_bm0307', JSON.stringify(data));
-      return data as BM0307Record[];
-    } else {
-      // Nếu Supabase rỗng, nạp dữ liệu mẫu lên
-      const initial = getBM0307Records();
-      for (const rec of initial) {
-        await supabase.from('vidona_bm0307').upsert(rec);
-      }
-      return initial;
+    const localRecords = getBM0307Records();
+    const map = new Map<string, BM0307Record>();
+
+    // 1. Giữ các phiếu từ local
+    for (const r of localRecords) {
+      if (r && r.id) map.set(r.id, r);
     }
+
+    // 2. Gộp các phiếu từ Cloud
+    if (data && Array.isArray(data)) {
+      for (const r of data as BM0307Record[]) {
+        if (r && r.id) map.set(r.id, r);
+      }
+    }
+
+    const merged = Array.from(map.values()).sort((a, b) => (b.ngay_tao || '').localeCompare(a.ngay_tao || ''));
+    localStorage.setItem('vidona_bm0307', JSON.stringify(merged));
+    return merged;
   } catch (err) {
     console.warn('Network error, fallback to local BM0307:', err);
     return getBM0307Records();
