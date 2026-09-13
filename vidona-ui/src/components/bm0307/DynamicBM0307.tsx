@@ -1275,26 +1275,33 @@ export const DynamicBM0307: React.FC<DynamicBM0307Props> = ({ initialData, onSav
                   />
                 </div>
 
-                {signingRole !== 'nguoi_giao_hang' && (
-                  <div>
-                    <label className="block text-slate-400 font-semibold mb-1 flex items-center justify-between">
-                      <span className="flex items-center gap-1"><KeyRound size={13} className="text-amber-400" /> Nhập Mã PIN Cá Nhân (4 Số):</span>
-                      <span className="text-[10px] text-slate-500">Mã PIN tài khoản đang đăng nhập</span>
-                    </label>
-                    <input
-                      type="password"
-                      maxLength={4}
-                      autoFocus
-                      value={pinInput}
-                      onChange={(e) => setPinInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleConfirmSign();
-                      }}
-                      placeholder="••••"
-                      className="w-full text-center text-xl tracking-[0.4em] font-mono py-2 bg-slate-800 border border-slate-700 rounded-xl text-sky-400 font-bold focus:border-sky-400 outline-none"
-                    />
-                  </div>
-                )}
+                <div>
+                  <label className="block text-slate-400 font-semibold mb-1 flex items-center justify-between">
+                    <span className="flex items-center gap-1">
+                      <KeyRound size={13} className="text-amber-400" /> 
+                      Nhập Mã PIN Bảo Mật (4 Số):
+                    </span>
+                    <span className="text-[10px] text-sky-400 font-medium">
+                      {signingRole === 'nguoi_giao_hang' && 'PIN P.KHTH: 2222'}
+                      {signingRole === 'nguoi_kiem_tra' && 'PIN KCS: 1234'}
+                      {signingRole === 'phu_trach_kcs' && 'PIN KTCN: 3333'}
+                      {signingRole === 'bo_phan_su_dung' && 'PIN Quản Đốc: 4444'}
+                      {signingRole === 'lanh_dao_duyet' && 'PIN Ban Giám Đốc: 0179'}
+                    </span>
+                  </label>
+                  <input
+                    type="password"
+                    maxLength={4}
+                    autoFocus
+                    value={pinInput}
+                    onChange={(e) => setPinInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleConfirmSign();
+                    }}
+                    placeholder="••••"
+                    className="w-full text-center text-2xl tracking-[0.4em] font-mono py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sky-400 font-bold focus:border-sky-400 outline-none"
+                  />
+                </div>
               </div>
 
               {/* Action Buttons */}
